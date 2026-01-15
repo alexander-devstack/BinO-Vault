@@ -1,0 +1,12 @@
+BinO-Vault Figma Design File
+
+Link: https://www.figma.com/files/team/1593261758694502427/all-projects
+
+To get your Figma share link:
+1. Open your Figma file
+2. Click "Share" button (top right)
+3. Set to "Anyone with the link can view"
+4. Click "Copy link"
+5. Paste above
+
+Created: January 15, 2026
