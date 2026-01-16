@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 BinO-Vault API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #00d9ff;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 40px;
+        }
+
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .test-section h2 {
+            color: #00d9ff;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #bbb;
+            font-size: 0.9em;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ff4757 0%, #cc3344 100%);
+        }
+
+        .delete-btn:hover {
+            box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        pre {
+            background: #0a0a0a;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 15px;
+            border-left: 4px solid #00d9ff;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        pre::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        pre::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        pre::-webkit-scrollbar-thumb {
+            background: #00d9ff;
+            border-radius: 4px;
+        }
+
+        .success {
+            color: #2ecc71;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2ecc71;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 BinO-Vault API Tester</h1>
+        <p class="subtitle">Test all backend endpoints for your password manager<span class="status-indicator"></span></p>
+
+        <!-- Test Section 1: Register -->
+        <div class="test-section">
+            <h2>1️⃣ Register New User</h2>
+            <div class="input-group">
+                <label>Email / Username</label>
+                <input type="email" id="regEmail" placeholder="test@email.com" value="test@email.com">
+            </div>
+            <div class="input-group">
+                <label>Master Password</label>
+                <input type="password" id="regPassword" placeholder="Minimum 8 characters" value="SecurePass123!">
+            </div>
+            <button onclick="register()">📝 Register Account</button>
+            <pre id="regResult">Click "Register Account" to create a new user...</pre>
+        </div>
+
+        <!-- Test Section 2: Login -->
+        <div class="test-section">
+            <h2>2️⃣ Login to Vault</h2>
+            <div class="input-group">
+                <label>Email / Username</label>
+                <input type="email" id="loginEmail" placeholder="test@email.com" value="test@email.com">
+            </div>
+            <div class="input-group">
+                <label>Master Password</label>
+                <input type="password" id="loginPassword" placeholder="Your master password" value="SecurePass123!">
+            </div>
+            <button onclick="login()">🔓 Login</button>
+            <button class="delete-btn" onclick="logout()">🚪 Logout</button>
+            <pre id="loginResult">Not logged in yet...</pre>
+        </div>
+
+        <!-- Test Section 3: Generate Password -->
+        <div class="test-section">
+            <h2>3️⃣ Generate Strong Password</h2>
+            <div class="input-group">
+                <label>Password Length</label>
+                <input type="number" id="genLength" value="16" min="8" max="64">
+            </div>
+            <button onclick="generatePassword()">🎲 Generate Password</button>
+            <pre id="genResult">Click "Generate Password" to create a strong password...</pre>
+        </div>
+
+        <!-- Test Section 4: Add Password -->
+        <div class="test-section">
+            <h2>4️⃣ Add Password to Vault</h2>
+            <div class="grid">
+                <div class="input-group">
+                    <label>Website / Service</label>
+                    <input type="text" id="website" placeholder="Gmail" value="Gmail">
+                </div>
+                <div class="input-group">
+                    <label>Username / Email</label>
+                    <input type="text" id="username" placeholder="yourname@gmail.com" value="yourname@gmail.com">
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="text" id="password" placeholder="Your password" value="MyGmailPass123!">
+            </div>
+            <button onclick="addPassword()">➕ Add Password</button>
+            <pre id="addResult">Login first, then add a password...</pre>
+        </div>
+
+        <!-- Test Section 5: View All Passwords -->
+        <div class="test-section">
+            <h2>5️⃣ View All Passwords</h2>
+            <button onclick="getAllPasswords()">👁️ View All Passwords</button>
+            <button onclick="clearResult('getAllResult')">🗑️ Clear</button>
+            <pre id="getAllResult">Login first, then click "View All Passwords"...</pre>
+        </div>
+
+        <!-- Test Section 6: Delete Password -->
+        <div class="test-section">
+            <h2>6️⃣ Delete Password</h2>
+            <div class="input-group">
+                <label>Password ID (from "View All Passwords")</label>
+                <input type="number" id="deleteId" placeholder="1" value="1">
+            </div>
+            <button class="delete-btn" onclick="deletePassword()">🗑️ Delete Password</button>
+            <pre id="deleteResult">Enter password ID and click delete...</pre>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:5000/api';
+
+        // Helper function to display results
+        function displayResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = isError ? 'error' : 'success';
+        }
+
+        function clearResult(elementId) {
+            document.getElementById(elementId).textContent = 'Cleared...';
+        }
+
+        // 1. Register new user
+        async function register() {
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!email || !password) {
+                displayResult('regResult', { error: 'Please fill in all fields' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: email,
+                        master_password: password
+                    })
+                });
+
+                const data = await response.json();
+                displayResult('regResult', data, !data.success);
+
+                if (data.success) {
+                    alert('⚠️ SAVE YOUR RECOVERY KEY: ' + data.recovery_key);
+                }
+            } catch (error) {
+                displayResult('regResult', { error: error.message }, true);
+            }
+        }
+
+        // 2. Login
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                displayResult('loginResult', { error: 'Please fill in all fields' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: email,
+                        master_password: password
+                    })
+                });
+
+                const data = await response.json();
+                displayResult('loginResult', data, !data.success);
+            } catch (error) {
+                displayResult('loginResult', { error: error.message }, true);
+            }
+        }
+
+        // 2b. Logout
+        async function logout() {
+            try {
+                const response = await fetch(`${API}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                displayResult('loginResult', data, !data.success);
+            } catch (error) {
+                displayResult('loginResult', { error: error.message }, true);
+            }
+        }
+
+        // 3. Generate password
+        async function generatePassword() {
+            const length = document.getElementById('genLength').value;
+
+            try {
+                const response = await fetch(`${API}/passwords/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ length: parseInt(length) })
+                });
+
+                const data = await response.json();
+                displayResult('genResult', data, !data.success);
+
+                // Auto-fill generated password
+                if (data.success) {
+                    document.getElementById('password').value = data.password;
+                }
+            } catch (error) {
+                displayResult('genResult', { error: error.message }, true);
+            }
+        }
+
+        // 4. Add password
+        async function addPassword() {
+            const website = document.getElementById('website').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!website || !username || !password) {
+                displayResult('addResult', { error: 'Please fill in all fields' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/passwords/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ website, username, password })
+                });
+
+                const data = await response.json();
+                displayResult('addResult', data, !data.success);
+            } catch (error) {
+                displayResult('addResult', { error: error.message }, true);
+            }
+        }
+
+        // 5. Get all passwords
+        async function getAllPasswords() {
+            try {
+                const response = await fetch(`${API}/passwords/`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                displayResult('getAllResult', data, !data.success);
+            } catch (error) {
+                displayResult('getAllResult', { error: error.message }, true);
+            }
+        }
+
+        // 6. Delete password
+        async function deletePassword() {
+            const passwordId = document.getElementById('deleteId').value;
+
+            if (!passwordId) {
+                displayResult('deleteResult', { error: 'Please enter password ID' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/passwords/${passwordId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                displayResult('deleteResult', data, !data.success);
+            } catch (error) {
+                displayResult('deleteResult', { error: error.message }, true);
+            }
+        }
+    </script>
+</body>
+</html>
