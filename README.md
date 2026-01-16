@@ -4,7 +4,7 @@
 
 **BinO-Vault is different. Local-only. Zero-knowledge. Neuroscience-driven. Your passwords never leave your device.**
 
-![BinO-Vault Screens](./screenshots/all-screens.png)
+![BinO-Vault Screens](Screenshots/Complete User Interface.png)
 
 > A password manager that combines cybersecurity principles with cognitive neuroscience - **without the cloud, without AI vendors, without the risk.**
 
@@ -412,6 +412,7 @@ Sometimes, the most innovative solution is refusing to follow the trend.
 **January 16, 2026** - Phase 2 Complete (Day 3): Backend API fully implemented with Flask. 10 REST endpoints, AES-256-GCM encryption, Argon2id hashing, password generator, and testing interface complete. 930+ lines of production code pushed to GitHub.
 
 **January 15, 2026** - Phase 1 Complete: UI/UX design finished, design system documented, competitive analysis complete.
+
 
 
 
