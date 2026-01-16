@@ -129,6 +129,22 @@ Instead of AI gimmicks, we use **neuroscience principles** to help you:
 **Design Philosophy:** *Your brain meets the machine for smarter security - without giving your secrets to the cloud.*
 
 ---
+## 📸 UI Design Screenshots
+
+### Complete Interface Overview
+![Complete User Interface](https://raw.githubusercontent.com/alexander-devstack/BinO-Vault/main/Screenshots/Complete-User-Interface.jpg)
+
+### Login Screen
+![Login Screen](https://raw.githubusercontent.com/alexander-devstack/BinO-Vault/main/Screenshots/Login-screen-2x.jpg)
+
+### Dashboard (Password List)
+![Dashboard](https://raw.githubusercontent.com/alexander-devstack/BinO-Vault/main/Screenshots/Dashboard-2x.jpg)
+
+### Add Password Form
+![Add Password](https://raw.githubusercontent.com/alexander-devstack/BinO-Vault/main/Screenshots/Add-Password-2x.jpg)
+
+### Password Details View
+![Password Details](https://raw.githubusercontent.com/alexander-devstack/BinO-Vault/main/Screenshots/Password-Details-2x.jpg)
 
 ## 🎨 Features (Designed)
 
@@ -407,6 +423,7 @@ Sometimes, the most innovative solution is refusing to follow the trend.
 **January 16, 2026** - Phase 2 Complete (Day 3): Backend API fully implemented with Flask. 10 REST endpoints, AES-256-GCM encryption, Argon2id hashing, password generator, and testing interface complete. 930+ lines of production code pushed to GitHub.
 
 **January 15, 2026** - Phase 1 Complete: UI/UX design finished, design system documented, competitive analysis complete.
+
 
 
 
