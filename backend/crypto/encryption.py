@@ -144,21 +144,3 @@ class PasswordEncryption:
         plaintext = decryptor.update(ciphertext) + decryptor.finalize()
 
         return plaintext.decode('utf-8')
-
-
-# Example usage (for testing)
-if __name__ == "__main__":
-    # Test encryption/decryption
-    master_pass = "MyMasterPassword123!"
-    encryptor = PasswordEncryption(master_pass)
-
-    # Encrypt a password
-    original = "SuperSecret@2026"
-    encrypted = encryptor.encrypt(original)
-    print(f"Original: {original}")
-    print(f"Encrypted: {encrypted}")
-
-    # Decrypt it back
-    decrypted = encryptor.decrypt(encrypted)
-    print(f"Decrypted: {decrypted}")
-    print(f"Match: {original == decrypted}")

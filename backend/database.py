@@ -70,7 +70,7 @@ class DatabaseManager:
             db_path: Path to SQLite database file (default: backend/bino_vault.db)
         """
         if db_path is None:
-            db_path = os.path.join(os.path.dirname(__file__), 'bino_vault.db')
+            db_path = os.path.join(os.path.dirname(__file__), 'passwords.db')
 
         self.db_path = db_path
         self.engine = create_engine(f'sqlite:///{db_path}', echo=False)
