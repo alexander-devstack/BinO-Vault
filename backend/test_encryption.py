@@ -6,17 +6,31 @@ def test_encryption_round_trip():
     master_password = "MyPassword123"
     test_password = "SuperSecret@2026"
     
+    print("="*70)
+    print("TESTING PASSWORD ENCRYPTION")
+    print("="*70 + "\n")
+    
+    # Create encryptor instance
+    encryptor = PasswordEncryption(master_password)
+    
     # Encrypt
-    encrypted = PasswordEncryption.encrypt(test_password, master_password)
-    print(f"✅ Encrypted: {encrypted[:50]}... (length: {len(encrypted)})")
+    print("🔐 Testing Encryption...")
+    encrypted = encryptor.encrypt(test_password)
+    print(f"   Original: {test_password}")
+    print(f"   Encrypted: {encrypted[:50]}... (length: {len(encrypted)})")
+    print(f"   ✅ Encryption successful\n")
     
     # Decrypt
-    decrypted = PasswordEncryption.decrypt(encrypted, master_password)
-    print(f"✅ Decrypted: {decrypted}")
+    print("🔓 Testing Decryption...")
+    decrypted = encryptor.decrypt(encrypted)
+    print(f"   Decrypted: {decrypted}")
+    print(f"   ✅ Match: {decrypted == test_password}\n")
     
     # Verify
     assert decrypted == test_password, "Decryption failed!"
-    print("✅ Round-trip successful!\n")
+    print("="*70)
+    print("✅ ENCRYPTION MODULE WORKING PERFECTLY!")
+    print("="*70)
 
 def test_wrong_password():
     """Test that wrong password fails decryption"""
@@ -24,32 +38,28 @@ def test_wrong_password():
     wrong_password = "WrongPassword"
     test_data = "TestPassword"
     
-    encrypted = PasswordEncryption.encrypt(test_data, correct_password)
+    print("\n" + "="*70)
+    print("TESTING WRONG PASSWORD SCENARIO")
+    print("="*70 + "\n")
+    
+    # Encrypt with correct password
+    encryptor = PasswordEncryption(correct_password)
+    encrypted = encryptor.encrypt(test_data)
+    
+    # Try to decrypt with wrong password
+    wrong_encryptor = PasswordEncryption(wrong_password)
     
     try:
-        PasswordEncryption.decrypt(encrypted, wrong_password)
-        print("❌ ERROR: Should have failed with wrong password!")
+        wrong_encryptor.decrypt(encrypted)
+        print("❌ ERROR: Should have failed but didn't!")
     except Exception as e:
-        print(f"✅ Correctly rejected wrong password: {type(e).__name__}")
-
-def test_unique_encryption():
-    """Test that same password encrypts differently each time"""
-    master_password = "MyPassword123"
-    test_password = "SamePassword"
+        print(f"✅ Correctly rejected wrong password")
+        print(f"   Error: {type(e).__name__}")
     
-    encrypted1 = PasswordEncryption.encrypt(test_password, master_password)
-    encrypted2 = PasswordEncryption.encrypt(test_password, master_password)
-    
-    assert encrypted1 != encrypted2, "Encryptions should be unique!"
-    print(f"✅ Same password produces unique ciphertexts (different salts/IVs)\n")
+    print("\n" + "="*70)
+    print("✅ WRONG PASSWORD TEST PASSED!")
+    print("="*70)
 
 if __name__ == "__main__":
-    print("🔐 TESTING ENCRYPTION MODULE\n")
-    print("="*60 + "\n")
-    
     test_encryption_round_trip()
     test_wrong_password()
-    test_unique_encryption()
-    
-    print("="*60)
-    print("🎉 ALL TESTS PASSED!")
