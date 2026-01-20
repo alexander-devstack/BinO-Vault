@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { passwordAPI } from "../services/api";
 import AddPasswordModal from "./AddPasswordModal";
+import Toast from "./Toast";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -14,6 +15,11 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [visiblePasswords, setVisiblePasswords] = useState(new Set());
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+  };
 
   // Fetch passwords on component mount
   useEffect(() => {
@@ -65,9 +71,10 @@ export default function Dashboard() {
   const copyToClipboard = async (text, type) => {
     try {
       await navigator.clipboard.writeText(text);
-      alert(`${type} copied to clipboard!`);
+      showToast(`${type} copied to clipboard!`, "success");
     } catch (err) {
       console.error("Failed to copy:", err);
+      showToast("Failed to copy to clipboard", "error");
     }
   };
 
@@ -78,10 +85,11 @@ export default function Dashboard() {
 
     try {
       await passwordAPI.delete(id);
+      showToast("Password deleted successfully 🗑️", "success");
       // Refresh the list
       fetchPasswords();
     } catch (err) {
-      alert("Failed to delete password: " + err.message);
+      showToast("Failed to delete password", "error");
     }
   };
 
@@ -411,7 +419,19 @@ export default function Dashboard() {
         {showAddModal && (
           <AddPasswordModal
             onClose={() => setShowAddModal(false)}
-            onSuccess={fetchPasswords}
+            onSuccess={() => {
+              fetchPasswords();
+              showToast("Password saved successfully! 🔐", "success");
+            }}
+          />
+        )}
+
+        {/* Toast Notification */}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
           />
         )}
       </div>
