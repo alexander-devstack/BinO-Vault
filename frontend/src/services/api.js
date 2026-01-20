@@ -9,7 +9,7 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Important for session cookies
+  withCredentials: true, // CRITICAL: Sends session cookies
 });
 
 // ==================== AUTH API ====================
@@ -29,55 +29,31 @@ export const authAPI = {
     });
     return response.data;
   },
-
-  // Logout
-  logout: async () => {
-    const response = await apiClient.post("/auth/logout");
-    return response.data;
-  },
-
-  // Verify if session is valid
-  verify: async () => {
-    const response = await apiClient.get("/auth/verify");
-    return response.data;
-  },
-
-  // Generate recovery key
-  generateRecoveryKey: async () => {
-    const response = await apiClient.post("/auth/recovery-key");
-    return response.data;
-  },
 };
 
 // ==================== PASSWORD API ====================
 export const passwordAPI = {
   // Get all passwords
   getAll: async () => {
-    const response = await apiClient.get("/passwords");
-    return response.data;
-  },
-
-  // Get single password by ID
-  getById: async (id) => {
-    const response = await apiClient.get(`/passwords/${id}`);
+    const response = await apiClient.get("/api/passwords/");
     return response.data;
   },
 
   // Create new password
   create: async (passwordData) => {
-    const response = await apiClient.post("/passwords", passwordData);
-    return response.data;
-  },
-
-  // Update existing password
-  update: async (id, passwordData) => {
-    const response = await apiClient.put(`/passwords/${id}`, passwordData);
+    const response = await apiClient.post("/api/passwords/", passwordData);
     return response.data;
   },
 
   // Delete password
   delete: async (id) => {
-    const response = await apiClient.delete(`/passwords/${id}`);
+    const response = await apiClient.delete(`/api/passwords/${id}`);
+    return response.data;
+  },
+
+  // Generate secure password
+  generate: async (options = {}) => {
+    const response = await apiClient.post("/api/passwords/generate", options);
     return response.data;
   },
 };

@@ -25,6 +25,7 @@ export default function Login() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // ✅ CRITICAL: Saves Flask session cookie
         body: JSON.stringify({
           master_password: password,
         }),
@@ -33,14 +34,18 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok && data.session_token) {
+        // Store session token for reference
         localStorage.setItem("sessionToken", data.session_token);
+
+        // Navigate to dashboard
         navigate("/dashboard");
       } else {
         setError(data.error || "Login failed");
         setLoading(false);
       }
     } catch (err) {
-      setError("Connection failed");
+      console.error("Login error:", err);
+      setError("Connection failed. Make sure backend is running.");
       setLoading(false);
     }
   };
@@ -189,7 +194,7 @@ export default function Login() {
             </div>
           )}
 
-          {/* Submit Button - FIXED */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}

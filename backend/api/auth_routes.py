@@ -22,6 +22,9 @@ def login():
         return jsonify({'status': 'ok'}), 200
     
     try:
+        # Import session at top of function
+        from flask import session
+        
         data = request.get_json()
         master_password = data.get('master_password')
         
@@ -57,9 +60,15 @@ def login():
         conn.commit()
         conn.close()
         
+        # ✅ CRITICAL: Store user_id and master_password in Flask session
+        session['user_id'] = user_id
+        session['master_password'] = master_password
+        session.permanent = True  # Keep session alive
+        
         return jsonify({
             'message': 'Login successful',
-            'session_token': session_token
+            'session_token': session_token,
+            'user_id': user_id
         }), 200
         
     except Exception as e:

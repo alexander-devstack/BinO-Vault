@@ -1,77 +1,30 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [sessionToken, setSessionToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Simple authentication state - session handled by cookies
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Check if user has logged in (sessionToken in localStorage)
+    return localStorage.getItem('sessionToken') !== null;
+  });
+  
+  const [loading, setLoading] = useState(false);
 
-  // Check for existing session on mount
-  useEffect(() => {
-    const token = sessionStorage.getItem('sessionToken');
-    if (token) {
-      verifySession(token);
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  // Verify session with backend
-  const verifySession = async (token) => {
-    try {
-      await authAPI.verify(token);
-      setSessionToken(token);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error('Session verification failed:', error);
-      sessionStorage.removeItem('sessionToken');
-      setIsAuthenticated(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Login function
-  const login = async (masterPassword) => {
-    try {
-      const response = await authAPI.login(masterPassword);
-      const token = response.session_token;
-      
-      // Store token in sessionStorage
-      sessionStorage.setItem('sessionToken', token);
-      setSessionToken(token);
-      setIsAuthenticated(true);
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Login failed:', error);
-      return { 
-        success: false, 
-        message: error.response?.data?.error || 'Invalid master password' 
-      };
-    }
+  // Login function (called from Login component)
+  const login = (sessionToken) => {
+    localStorage.setItem('sessionToken', sessionToken);
+    setIsAuthenticated(true);
   };
 
   // Logout function
-  const logout = async () => {
-    try {
-      if (sessionToken) {
-        await authAPI.logout(sessionToken);
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      sessionStorage.removeItem('sessionToken');
-      setSessionToken(null);
-      setIsAuthenticated(false);
-    }
+  const logout = () => {
+    localStorage.removeItem('sessionToken');
+    setIsAuthenticated(false);
   };
 
   const value = {
     isAuthenticated,
-    sessionToken,
     loading,
     login,
     logout,
