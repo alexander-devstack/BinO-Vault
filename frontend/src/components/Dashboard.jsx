@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { passwordAPI } from "../services/api";
 import AddPasswordModal from "./AddPasswordModal";
+import EditPasswordModal from "./EditPasswordModal";
 import Toast from "./Toast";
 
 export default function Dashboard() {
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingPassword, setEditingPassword] = useState(null);
   const [visiblePasswords, setVisiblePasswords] = useState(new Set());
   const [toast, setToast] = useState(null);
 
@@ -369,22 +371,54 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  {/* Right Side: Delete Button */}
-                  <button
-                    onClick={() => deletePassword(pwd.id)}
-                    style={{
-                      padding: "8px 16px",
-                      backgroundColor: "#7F1D1D",
-                      color: "#FEE2E2",
-                      border: "none",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                      marginLeft: "16px",
-                    }}
+                  {/* Right Side: Action Buttons */}
+                  <div
+                    style={{ display: "flex", gap: "12px", marginLeft: "16px" }}
                   >
-                    🗑️ Delete
-                  </button>
+                    <button
+                      onClick={() => setEditingPassword(pwd)}
+                      style={{
+                        padding: "8px 16px",
+                        backgroundColor: "#3B82F6",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        fontSize: "14px",
+                        cursor: "pointer",
+                        transition: "background-color 0.2s",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.target.style.backgroundColor = "#2563EB")
+                      }
+                      onMouseOut={(e) =>
+                        (e.target.style.backgroundColor = "#3B82F6")
+                      }
+                    >
+                      ✏️ Edit
+                    </button>
+
+                    <button
+                      onClick={() => deletePassword(pwd.id)}
+                      style={{
+                        padding: "8px 16px",
+                        backgroundColor: "#7F1D1D",
+                        color: "#FEE2E2",
+                        border: "none",
+                        borderRadius: "8px",
+                        fontSize: "14px",
+                        cursor: "pointer",
+                        transition: "background-color 0.2s",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.target.style.backgroundColor = "#991B1B")
+                      }
+                      onMouseOut={(e) =>
+                        (e.target.style.backgroundColor = "#7F1D1D")
+                      }
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -422,6 +456,19 @@ export default function Dashboard() {
             onSuccess={() => {
               fetchPasswords();
               showToast("Password saved successfully! 🔐", "success");
+            }}
+          />
+        )}
+
+        {/* Edit Password Modal */}
+        {editingPassword && (
+          <EditPasswordModal
+            password={editingPassword}
+            onClose={() => setEditingPassword(null)}
+            onSuccess={() => {
+              fetchPasswords();
+              setEditingPassword(null);
+              showToast("Password updated successfully! ✏️", "success");
             }}
           />
         )}

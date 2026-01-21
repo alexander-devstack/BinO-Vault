@@ -50,6 +50,11 @@ export const passwordAPI = {
     const response = await apiClient.delete(`/api/passwords/${id}`);
     return response.data;
   },
+  // Update existing password
+  update: async (id, passwordData) => {
+    const response = await apiClient.put(`/api/passwords/${id}`, passwordData);
+    return response.data;
+  },
 
   // Generate secure password
   generate: async (options = {}) => {
