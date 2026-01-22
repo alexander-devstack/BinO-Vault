@@ -11,6 +11,16 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showGeneratorOptions, setShowGeneratorOptions] = useState(false);
+
+  // Generator options
+  const [generatorOptions, setGeneratorOptions] = useState({
+    length: 16,
+    useUppercase: true,
+    useLowercase: true,
+    useDigits: true,
+    useSpecial: true,
+  });
 
   const handleChange = (e) => {
     setFormData({
@@ -20,12 +30,25 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
   };
 
   const handleGeneratePassword = async () => {
+    // Validate at least one character set is selected
+    if (
+      !generatorOptions.useUppercase &&
+      !generatorOptions.useLowercase &&
+      !generatorOptions.useDigits &&
+      !generatorOptions.useSpecial
+    ) {
+      setError("Please select at least one character type!");
+      return;
+    }
+
     try {
+      setError("");
       const response = await passwordAPI.generate({
-        length: 16,
-        use_uppercase: true,
-        use_digits: true,
-        use_special: true,
+        length: generatorOptions.length,
+        use_uppercase: generatorOptions.useUppercase,
+        use_lowercase: generatorOptions.useLowercase,
+        use_digits: generatorOptions.useDigits,
+        use_special: generatorOptions.useSpecial,
       });
 
       if (response.success) {
@@ -34,6 +57,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
           password: response.password,
         });
         setShowPassword(true); // Show the generated password
+        setShowGeneratorOptions(false); // Collapse options after generation
       }
     } catch (err) {
       setError("Failed to generate password");
@@ -257,7 +281,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                 </button>
                 <button
                   type="button"
-                  onClick={handleGeneratePassword}
+                  onClick={() => setShowGeneratorOptions(!showGeneratorOptions)}
                   style={{
                     padding: "4px 12px",
                     fontSize: "12px",
@@ -269,10 +293,154 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                     cursor: "pointer",
                   }}
                 >
-                  Generate
+                  {showGeneratorOptions ? "▼ Options" : "🎲 Generate"}
                 </button>
               </div>
             </div>
+
+            {/* Generator Options (Collapsible) */}
+            {showGeneratorOptions && (
+              <div
+                style={{
+                  marginTop: "12px",
+                  padding: "16px",
+                  backgroundColor: "#1A1A1A",
+                  borderRadius: "8px",
+                  border: "2px solid #374151",
+                }}
+              >
+                {/* Length Slider */}
+                <div style={{ marginBottom: "16px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <label style={{ fontSize: "13px", color: "#D1D5DB" }}>
+                      Password Length
+                    </label>
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "#00FFA3",
+                      }}
+                    >
+                      {generatorOptions.length}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="8"
+                    max="32"
+                    value={generatorOptions.length}
+                    onChange={(e) =>
+                      setGeneratorOptions({
+                        ...generatorOptions,
+                        length: parseInt(e.target.value),
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      height: "4px",
+                      cursor: "pointer",
+                    }}
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <span style={{ fontSize: "11px", color: "#6B7280" }}>
+                      8
+                    </span>
+                    <span style={{ fontSize: "11px", color: "#6B7280" }}>
+                      32
+                    </span>
+                  </div>
+                </div>
+
+                {/* Character Type Checkboxes */}
+                <div style={{ marginBottom: "12px" }}>
+                  <label
+                    style={{
+                      fontSize: "13px",
+                      color: "#D1D5DB",
+                      marginBottom: "8px",
+                      display: "block",
+                    }}
+                  >
+                    Character Types
+                  </label>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "8px",
+                    }}
+                  >
+                    {[
+                      { label: "A-Z", key: "useUppercase" },
+                      { label: "a-z", key: "useLowercase" },
+                      { label: "0-9", key: "useDigits" },
+                      { label: "!@#$", key: "useSpecial" },
+                    ].map((option) => (
+                      <label
+                        key={option.key}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                          color: "#D1D5DB",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={generatorOptions[option.key]}
+                          onChange={(e) =>
+                            setGeneratorOptions({
+                              ...generatorOptions,
+                              [option.key]: e.target.checked,
+                            })
+                          }
+                          style={{
+                            width: "16px",
+                            height: "16px",
+                            marginRight: "6px",
+                            cursor: "pointer",
+                          }}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Generate Button */}
+                <button
+                  type="button"
+                  onClick={handleGeneratePassword}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    backgroundColor: "#00FFA3",
+                    color: "#1A1A1A",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                  }}
+                >
+                  ✨ Generate Password
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Notes (Optional) */}

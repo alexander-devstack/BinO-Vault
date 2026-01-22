@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { passwordAPI } from "../services/api";
 import AddPasswordModal from "./AddPasswordModal";
 import EditPasswordModal from "./EditPasswordModal";
+import PasswordGenerator from "./PasswordGenerator";
 import Toast from "./Toast";
 
 export default function Dashboard() {
@@ -16,6 +17,7 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPassword, setEditingPassword] = useState(null);
+  const [showGenerator, setShowGenerator] = useState(false);
   const [visiblePasswords, setVisiblePasswords] = useState(new Set());
   const [toast, setToast] = useState(null);
 
@@ -142,24 +144,47 @@ export default function Dashboard() {
               Your passwords are safe
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              padding: "12px 24px",
-              backgroundColor: "#EF4444",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "background-color 0.2s",
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#DC2626")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#EF4444")}
-          >
-            Logout
-          </button>
+
+          {/* Header Buttons */}
+          <div style={{ display: "flex", gap: "12px" }}>
+            <button
+              onClick={() => setShowGenerator(true)}
+              style={{
+                padding: "12px 24px",
+                backgroundColor: "#8B5CF6",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "background-color 0.2s",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#7C3AED")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#8B5CF6")}
+            >
+              🎲 Generate Password
+            </button>
+
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: "12px 24px",
+                backgroundColor: "#EF4444",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "background-color 0.2s",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#DC2626")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#EF4444")}
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Error State */}
@@ -317,6 +342,24 @@ export default function Dashboard() {
                       {pwd.username}
                     </p>
 
+                    {/* Display Notes if they exist */}
+                    {pwd.notes && pwd.notes.trim() !== "" && (
+                      <p
+                        style={{
+                          color: "#6B7280",
+                          fontSize: "13px",
+                          margin: "0 0 12px 0",
+                          fontStyle: "italic",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <span>📝</span>
+                        <span>{pwd.notes}</span>
+                      </p>
+                    )}
+
                     <div
                       style={{
                         display: "flex",
@@ -471,6 +514,11 @@ export default function Dashboard() {
               showToast("Password updated successfully! ✏️", "success");
             }}
           />
+        )}
+
+        {/* Password Generator Modal */}
+        {showGenerator && (
+          <PasswordGenerator onClose={() => setShowGenerator(false)} />
         )}
 
         {/* Toast Notification */}
