@@ -5,13 +5,13 @@ import { passwordAPI } from "../services/api";
 import AddPasswordModal from "./AddPasswordModal";
 import EditPasswordModal from "./EditPasswordModal";
 import PasswordGenerator from "./PasswordGenerator";
+import PasswordDetailsModal from "./PasswordDetailsModal";
 import Toast from "./Toast";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  // State management
   const [passwords, setPasswords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,14 +20,28 @@ export default function Dashboard() {
   const [showGenerator, setShowGenerator] = useState(false);
   const [visiblePasswords, setVisiblePasswords] = useState(new Set());
   const [toast, setToast] = useState(null);
+  const [viewingPassword, setViewingPassword] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterLevel, setFilterLevel] = useState("All");
+  const [sortBy, setSortBy] = useState("newest");
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
   };
 
-  // Fetch passwords on component mount
   useEffect(() => {
     fetchPasswords();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        document.getElementById("search-input")?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const fetchPasswords = async () => {
@@ -35,7 +49,6 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
       const response = await passwordAPI.getAll();
-
       if (response.success) {
         setPasswords(response.passwords || []);
       } else {
@@ -44,8 +57,6 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Error fetching passwords:", err);
       setError(err.message || "Failed to load passwords");
-
-      // If session expired, redirect to login
       if (err.response?.status === 401) {
         logout();
         navigate("/");
@@ -86,29 +97,63 @@ export default function Dashboard() {
     if (!confirm("Are you sure you want to delete this password?")) {
       return;
     }
-
     try {
       await passwordAPI.delete(id);
       showToast("Password deleted successfully 🗑️", "success");
-      // Refresh the list
       fetchPasswords();
     } catch (err) {
       showToast("Failed to delete password", "error");
     }
   };
 
-  // Security level colors
   const getSecurityColor = (level) => {
     switch (level) {
       case "Calm":
-        return "#00FFA3"; // Green
+        return "#00FFA3";
       case "Alert":
-        return "#F59E0B"; // Orange
+        return "#F59E0B";
       case "Critical":
-        return "#EF4444"; // Red
+        return "#EF4444";
       default:
-        return "#6B7280"; // Gray
+        return "#6B7280";
     }
+  };
+
+  const getFilteredAndSortedPasswords = () => {
+    let filtered = [...passwords];
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(
+        (pwd) =>
+          pwd.website.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          pwd.username.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    }
+    if (filterLevel !== "All") {
+      filtered = filtered.filter((pwd) => pwd.security_level === filterLevel);
+    }
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return new Date(b.created_at) - new Date(a.created_at);
+        case "oldest":
+          return new Date(a.created_at) - new Date(b.created_at);
+        case "a-z":
+          return a.website.localeCompare(b.website);
+        case "z-a":
+          return b.website.localeCompare(a.website);
+        default:
+          return 0;
+      }
+    });
+    return filtered;
+  };
+
+  const filteredPasswords = getFilteredAndSortedPasswords();
+
+  const clearSearchAndFilters = () => {
+    setSearchTerm("");
+    setFilterLevel("All");
+    setSortBy("newest");
   };
 
   return (
@@ -120,7 +165,6 @@ export default function Dashboard() {
       }}
     >
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -144,8 +188,6 @@ export default function Dashboard() {
               Your passwords are safe
             </p>
           </div>
-
-          {/* Header Buttons */}
           <div style={{ display: "flex", gap: "12px" }}>
             <button
               onClick={() => setShowGenerator(true)}
@@ -165,7 +207,6 @@ export default function Dashboard() {
             >
               🎲 Generate Password
             </button>
-
             <button
               onClick={handleLogout}
               style={{
@@ -187,7 +228,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Error State */}
         {error && (
           <div
             style={{
@@ -203,7 +243,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Loading State */}
         {loading ? (
           <div
             style={{
@@ -216,7 +255,6 @@ export default function Dashboard() {
             Loading your passwords...
           </div>
         ) : passwords.length === 0 ? (
-          /* Empty State */
           <div
             style={{
               backgroundColor: "#2A2A2A",
@@ -265,208 +303,416 @@ export default function Dashboard() {
             </button>
           </div>
         ) : (
-          /* Password List */
           <div>
-            <div style={{ marginBottom: "24px" }}>
-              <h2
+            <div
+              style={{
+                backgroundColor: "#2A2A2A",
+                borderRadius: "12px",
+                padding: "20px",
+                marginBottom: "24px",
+              }}
+            >
+              <div style={{ position: "relative", marginBottom: "16px" }}>
+                <input
+                  id="search-input"
+                  type="text"
+                  placeholder="🔍 Search by website or username... (Ctrl+K)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "14px 48px 14px 16px",
+                    backgroundColor: "#1A1A1A",
+                    border: "2px solid #374151",
+                    borderRadius: "8px",
+                    color: "white",
+                    fontSize: "16px",
+                    outline: "none",
+                    transition: "border-color 0.2s",
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = "#00FFA3")}
+                  onBlur={(e) => (e.target.style.borderColor = "#374151")}
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    style={{
+                      position: "absolute",
+                      right: "12px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      backgroundColor: "#374151",
+                      color: "#D1D5DB",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "6px 10px",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div
                 style={{
-                  fontSize: "24px",
-                  color: "white",
-                  marginBottom: "8px",
-                  fontWeight: "600",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "12px",
                 }}
               >
-                Your Passwords ({passwords.length})
-              </h2>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <span
+                    style={{
+                      color: "#9CA3AF",
+                      fontSize: "14px",
+                      alignSelf: "center",
+                      marginRight: "4px",
+                    }}
+                  >
+                    Filter:
+                  </span>
+                  {["All", "Calm", "Alert", "Critical"].map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => setFilterLevel(level)}
+                      style={{
+                        padding: "8px 16px",
+                        backgroundColor:
+                          filterLevel === level ? "#00FFA3" : "#374151",
+                        color: filterLevel === level ? "#1A1A1A" : "#D1D5DB",
+                        border: "none",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      {level === "Calm" && "🟢 "}
+                      {level === "Alert" && "🟠 "}
+                      {level === "Critical" && "🔴 "}
+                      {level}
+                    </button>
+                  ))}
+                </div>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <span style={{ color: "#9CA3AF", fontSize: "14px" }}>
+                    Sort:
+                  </span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    style={{
+                      padding: "8px 12px",
+                      backgroundColor: "#374151",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      outline: "none",
+                    }}
+                  >
+                    <option value="newest">Date Added (Newest)</option>
+                    <option value="oldest">Date Added (Oldest)</option>
+                    <option value="a-z">Alphabetical (A-Z)</option>
+                    <option value="z-a">Alphabetical (Z-A)</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
-            {/* Password Cards */}
             <div
-              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+              }}
             >
-              {passwords.map((pwd) => (
-                <div
-                  key={pwd.id}
+              <p style={{ color: "#9CA3AF", fontSize: "14px", margin: 0 }}>
+                Showing{" "}
+                <strong style={{ color: "#00FFA3" }}>
+                  {filteredPasswords.length}
+                </strong>{" "}
+                of <strong>{passwords.length}</strong> passwords
+              </p>
+              {(searchTerm || filterLevel !== "All" || sortBy !== "newest") && (
+                <button
+                  onClick={clearSearchAndFilters}
                   style={{
-                    backgroundColor: "#2A2A2A",
-                    borderRadius: "12px",
-                    padding: "20px",
-                    borderLeft: `4px solid ${getSecurityColor(pwd.security_level)}`,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
+                    padding: "6px 12px",
+                    backgroundColor: "#374151",
+                    color: "#D1D5DB",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontSize: "13px",
+                    cursor: "pointer",
                   }}
                 >
-                  {/* Left Side: Password Info */}
-                  <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      <h3
-                        style={{
-                          fontSize: "20px",
-                          fontWeight: "600",
-                          color: "white",
-                          margin: 0,
-                        }}
-                      >
-                        {pwd.website}
-                      </h3>
-                      <span
-                        style={{
-                          fontSize: "12px",
-                          padding: "4px 8px",
-                          backgroundColor:
-                            getSecurityColor(pwd.security_level) + "20",
-                          color: getSecurityColor(pwd.security_level),
-                          borderRadius: "4px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        {pwd.security_level}
-                      </span>
-                    </div>
-
-                    <p
-                      style={{
-                        color: "#9CA3AF",
-                        fontSize: "14px",
-                        margin: "0 0 8px 0",
-                      }}
-                    >
-                      {pwd.username}
-                    </p>
-
-                    {/* Display Notes if they exist */}
-                    {pwd.notes && pwd.notes.trim() !== "" && (
-                      <p
-                        style={{
-                          color: "#6B7280",
-                          fontSize: "13px",
-                          margin: "0 0 12px 0",
-                          fontStyle: "italic",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                        }}
-                      >
-                        <span>📝</span>
-                        <span>{pwd.notes}</span>
-                      </p>
-                    )}
-
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                      }}
-                    >
-                      <code
-                        style={{
-                          fontSize: "16px",
-                          color: "#D1D5DB",
-                          fontFamily: "monospace",
-                        }}
-                      >
-                        {visiblePasswords.has(pwd.id)
-                          ? pwd.password
-                          : "••••••••••••"}
-                      </code>
-
-                      <button
-                        onClick={() => togglePasswordVisibility(pwd.id)}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#374151",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          fontSize: "14px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {visiblePasswords.has(pwd.id) ? "🙈 Hide" : "👁️ Show"}
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          copyToClipboard(pwd.password, "Password")
-                        }
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#00FFA3",
-                          color: "#1A1A1A",
-                          border: "none",
-                          borderRadius: "6px",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                          cursor: "pointer",
-                        }}
-                      >
-                        📋 Copy
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Right Side: Action Buttons */}
-                  <div
-                    style={{ display: "flex", gap: "12px", marginLeft: "16px" }}
-                  >
-                    <button
-                      onClick={() => setEditingPassword(pwd)}
-                      style={{
-                        padding: "8px 16px",
-                        backgroundColor: "#3B82F6",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        cursor: "pointer",
-                        transition: "background-color 0.2s",
-                      }}
-                      onMouseOver={(e) =>
-                        (e.target.style.backgroundColor = "#2563EB")
-                      }
-                      onMouseOut={(e) =>
-                        (e.target.style.backgroundColor = "#3B82F6")
-                      }
-                    >
-                      ✏️ Edit
-                    </button>
-
-                    <button
-                      onClick={() => deletePassword(pwd.id)}
-                      style={{
-                        padding: "8px 16px",
-                        backgroundColor: "#7F1D1D",
-                        color: "#FEE2E2",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        cursor: "pointer",
-                        transition: "background-color 0.2s",
-                      }}
-                      onMouseOver={(e) =>
-                        (e.target.style.backgroundColor = "#991B1B")
-                      }
-                      onMouseOut={(e) =>
-                        (e.target.style.backgroundColor = "#7F1D1D")
-                      }
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+                  🔄 Clear Filters
+                </button>
+              )}
             </div>
 
-            {/* Add Password Button (when list exists) */}
+            {filteredPasswords.length === 0 ? (
+              <div
+                style={{
+                  backgroundColor: "#2A2A2A",
+                  borderRadius: "16px",
+                  padding: "48px",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: "60px", marginBottom: "16px" }}>🔍</div>
+                <h3
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: "600",
+                    color: "white",
+                    marginBottom: "8px",
+                  }}
+                >
+                  No passwords found
+                </h3>
+                <p
+                  style={{
+                    color: "#9CA3AF",
+                    marginBottom: "24px",
+                    fontSize: "16px",
+                  }}
+                >
+                  {searchTerm
+                    ? `No passwords match "${searchTerm}"`
+                    : `No passwords with security level "${filterLevel}"`}
+                </p>
+                <button
+                  onClick={clearSearchAndFilters}
+                  style={{
+                    padding: "12px 24px",
+                    backgroundColor: "#00FFA3",
+                    color: "#1A1A1A",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                  }}
+                >
+                  Clear Search & Filters
+                </button>
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "16px",
+                }}
+              >
+                {filteredPasswords.map((pwd) => (
+                  <div
+                    key={pwd.id}
+                    onClick={() => setViewingPassword(pwd)}
+                    style={{
+                      backgroundColor: "#2A2A2A",
+                      borderRadius: "12px",
+                      padding: "20px",
+                      borderLeft: `4px solid ${getSecurityColor(pwd.security_level)}`,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s",
+                    }}
+                    onMouseOver={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#333333")
+                    }
+                    onMouseOut={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#2A2A2A")
+                    }
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        <h3
+                          style={{
+                            fontSize: "20px",
+                            fontWeight: "600",
+                            color: "white",
+                            margin: 0,
+                          }}
+                        >
+                          {pwd.website}
+                        </h3>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            padding: "4px 8px",
+                            backgroundColor:
+                              getSecurityColor(pwd.security_level) + "20",
+                            color: getSecurityColor(pwd.security_level),
+                            borderRadius: "4px",
+                            fontWeight: "600",
+                          }}
+                        >
+                          {pwd.security_level}
+                        </span>
+                      </div>
+                      <p
+                        style={{
+                          color: "#9CA3AF",
+                          fontSize: "14px",
+                          margin: "0 0 8px 0",
+                        }}
+                      >
+                        {pwd.username}
+                      </p>
+                      {pwd.notes && pwd.notes.trim() !== "" && (
+                        <p
+                          style={{
+                            color: "#6B7280",
+                            fontSize: "13px",
+                            margin: "0 0 12px 0",
+                            fontStyle: "italic",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <span>📝</span>
+                          <span>{pwd.notes}</span>
+                        </p>
+                      )}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "12px",
+                        }}
+                      >
+                        <code
+                          style={{
+                            fontSize: "16px",
+                            color: "#D1D5DB",
+                            fontFamily: "monospace",
+                          }}
+                        >
+                          {visiblePasswords.has(pwd.id)
+                            ? pwd.password
+                            : "••••••••••••"}
+                        </code>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePasswordVisibility(pwd.id);
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: "#374151",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "6px",
+                            fontSize: "14px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          {visiblePasswords.has(pwd.id) ? "🙈 Hide" : "👁️ Show"}
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyToClipboard(pwd.password, "Password");
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: "#00FFA3",
+                            color: "#1A1A1A",
+                            border: "none",
+                            borderRadius: "6px",
+                            fontSize: "14px",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                          }}
+                        >
+                          📋 Copy
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "12px",
+                        marginLeft: "16px",
+                      }}
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingPassword(pwd);
+                        }}
+                        style={{
+                          padding: "8px 16px",
+                          backgroundColor: "#3B82F6",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "8px",
+                          fontSize: "14px",
+                          cursor: "pointer",
+                          transition: "background-color 0.2s",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.target.style.backgroundColor = "#2563EB")
+                        }
+                        onMouseOut={(e) =>
+                          (e.target.style.backgroundColor = "#3B82F6")
+                        }
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deletePassword(pwd.id);
+                        }}
+                        style={{
+                          padding: "8px 16px",
+                          backgroundColor: "#7F1D1D",
+                          color: "#FEE2E2",
+                          border: "none",
+                          borderRadius: "8px",
+                          fontSize: "14px",
+                          cursor: "pointer",
+                          transition: "background-color 0.2s",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.target.style.backgroundColor = "#991B1B")
+                        }
+                        onMouseOut={(e) =>
+                          (e.target.style.backgroundColor = "#7F1D1D")
+                        }
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div style={{ marginTop: "32px", textAlign: "center" }}>
               <button
                 onClick={() => setShowAddModal(true)}
@@ -492,7 +738,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Add Password Modal */}
         {showAddModal && (
           <AddPasswordModal
             onClose={() => setShowAddModal(false)}
@@ -502,8 +747,6 @@ export default function Dashboard() {
             }}
           />
         )}
-
-        {/* Edit Password Modal */}
         {editingPassword && (
           <EditPasswordModal
             password={editingPassword}
@@ -515,13 +758,23 @@ export default function Dashboard() {
             }}
           />
         )}
-
-        {/* Password Generator Modal */}
         {showGenerator && (
           <PasswordGenerator onClose={() => setShowGenerator(false)} />
         )}
-
-        {/* Toast Notification */}
+        {viewingPassword && (
+          <PasswordDetailsModal
+            password={viewingPassword}
+            onClose={() => setViewingPassword(null)}
+            onEdit={() => {
+              setEditingPassword(viewingPassword);
+              setViewingPassword(null);
+            }}
+            onDelete={() => {
+              deletePassword(viewingPassword.id);
+              setViewingPassword(null);
+            }}
+          />
+        )}
         {toast && (
           <Toast
             message={toast.message}
