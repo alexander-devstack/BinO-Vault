@@ -1,289 +1,374 @@
 # BinO-Vault
 
-A neuroscience-inspired local-first password manager with military-grade encryption.
+A neuroscience-inspired, local-first password manager built with security and cognitive psychology principles at its core.
 
 ## Overview
 
-BinO-Vault is a secure password management application that combines AES-256-GCM encryption with cognitive psychology principles. Built from the ground up with security, privacy, and user experience in mind.
+BinO-Vault is a secure password management application that combines military-grade AES-256-GCM encryption with cognitive psychology principles to create an intuitive, anxiety-reducing user experience. Unlike traditional password managers that rely on cloud storage, BinO-Vault stores all data locally, giving you complete control and ownership of your sensitive information.
 
-## Core Philosophy: The Neuroscience Twist
+## Core Philosophy
 
-Unlike traditional password managers that induce anxiety with "WEAK" or "STRONG" labels, BinO-Vault uses psychology-informed color coding:
+Traditional password managers often induce anxiety with labels like "WEAK" or "STRONG". BinO-Vault takes a different approach by using psychology-informed security level indicators:
 
-- **Calm (Green)**: Strong passwords trigger reward pathways
-- **Alert (Orange)**: Suggests improvement without panic
-- **Critical (Red)**: Clear but measured danger signal
+- **Calm (Green)**: Strong passwords that trigger positive reinforcement
+- **Alert (Orange)**: Moderate passwords that suggest improvement without inducing panic
+- **Critical (Red)**: Weak passwords with clear, actionable danger signals
 
-This approach reduces decision fatigue and encourages better security habits through positive reinforcement rather than fear.
+This neuroscience-based approach leverages motivational psychology rather than shame-based security prompts.
 
-## Technical Architecture
+## Key Features
+
+### Security & Encryption
+
+- **AES-256-GCM encryption**: Military-grade authenticated encryption for all stored passwords
+- **PBKDF2 key derivation**: 100,000 iterations for enhanced security
+- **Local-first architecture**: All data stored locally with zero cloud dependency
+- **Session-based authentication**: Secure authentication without JWT complexity
+- **Argon2id password hashing**: OWASP-compliant master password protection
+
+### Password Management
+
+- **Complete CRUD operations**: Create, read, update, and delete password entries
+- **Advanced password generator**: Customizable length (8-32 characters) with character type selection
+- **Real-time strength analysis**: Instant feedback on password security
+- **Encrypted storage**: All passwords encrypted with your master password before storage
+- **Notes support**: Add contextual information to password entries
+
+### User Experience
+
+- **Search functionality**: Real-time search by website name or username
+- **Multi-level filtering**: Filter passwords by security level (Calm, Alert, Critical)
+- **Flexible sorting**: Sort by date added or alphabetically
+- **Password details view**: Click any password card for expanded details and metadata
+- **Copy to clipboard**: One-click copy for usernames and passwords
+- **Show/Hide passwords**: Toggle password visibility with eye icons
+- **Toast notifications**: Professional feedback for all actions
+
+### Accessibility & Polish
+
+- **Keyboard shortcuts**: Ctrl+K (Cmd+K on Mac) to focus search
+- **Clickable password cards**: Entire card surface is interactive for better discoverability
+- **Hover effects**: Visual feedback on interactive elements
+- **Empty state handling**: Helpful guidance when no passwords match search criteria
+- **Results counter**: Clear visibility of filtered results
+
+## Technology Stack
+
+### Backend
+
+- **Python 3.14**: Core backend language
+- **Flask 3.1.2**: Lightweight web framework
+- **SQLite**: Embedded database for local data storage
+- **Cryptography 46.0.3**: Encryption operations
+- **Argon2-cffi 25.1.0**: Password hashing
+- **Flask-CORS 6.0.2**: Cross-origin resource sharing
+
+### Frontend
+
+- **React 18.2**: UI component library
+- **Vite 5.0**: Lightning-fast build tool and dev server
+- **React Router 6.20**: Client-side routing
+- **Axios 1.6.2**: HTTP client for API communication
+- **Inline styles**: Component-scoped styling for zero CSS conflicts
 
 ### Security Implementation
 
-**Encryption Stack:**
+- **Session-based authentication**: Master password never stored, only Argon2id hash
+- **Password encryption**: AES-256-GCM with user's master password as key material
+- **PBKDF2 key derivation**: 100,000 rounds for secure key generation
+- **CORS protection**: Configured cross-origin security
 
-- Algorithm: AES-256-GCM (Authenticated Encryption)
-- Key Derivation: PBKDF2-HMAC-SHA256 (100,000 iterations)
-- Master Password Hashing: Argon2id (OWASP recommended)
-- Salt: 16 bytes random per encryption
-- IV: 12 bytes random per encryption
+## Project Structure
 
-**Data Flow:**
-
-1. Master password hashed with Argon2id (never stored in plaintext)
-2. Master password derives encryption key via PBKDF2
-3. Each password encrypted individually with unique salt+IV
-4. Ciphertext stored as Base64(salt + iv + ciphertext + tag)
-
-### Backend (Python/Flask)
-
-**Stack:**
-
-- Flask 3.1.2 with Blueprint architecture
-- SQLAlchemy ORM for database operations
-- Session-based authentication
-- SQLite for local-first data storage
-
-**API Endpoints:**
-POST /api/auth/login # Authenticate user
-POST /api/passwords # Create password
-GET /api/passwords # List all passwords
-GET /api/passwords/<id> # Get specific password
-PUT /api/passwords/<id> # Update password
-DELETE /api/passwords/<id> # Delete password
-POST /api/passwords/generate # Generate secure password
-
-text
-
-**Database Schema:**
-
-```sql
--- Table: users
-id INTEGER PRIMARY KEY
-master_password_hash TEXT NOT NULL
-created_at TEXT NOT NULL
-
--- Table: sessions
-id INTEGER PRIMARY KEY
-user_id INTEGER NOT NULL
-session_token TEXT NOT NULL
-created_at TEXT DEFAULT CURRENT_TIMESTAMP
-
--- Table: password_entries
-id INTEGER PRIMARY KEY
-user_id INTEGER NOT NULL
-website TEXT NOT NULL
-username TEXT NOT NULL
-encrypted_password TEXT NOT NULL
-security_level TEXT DEFAULT 'Calm'
-notes TEXT
-created_at TEXT DEFAULT CURRENT_TIMESTAMP
-updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-Frontend (React/Vite)
-Stack:
-
-React 18.2 with Hooks
-
-Vite for development and bundling
-
-React Router for navigation
-
-Axios for HTTP requests
-
-Inline styles (component-scoped, zero CSS conflicts)
-
-Component Structure:
+BinO-Vault/
+├── backend/
+│ ├── api/
+│ │ ├── auth_routes.py # Authentication endpoints
+│ │ └── password_routes.py # Password CRUD endpoints
+│ ├── auth/
+│ │ └── password_hasher.py # Argon2id implementation
+│ ├── crypto/
+│ │ └── encryption.py # AES-256-GCM encryption
+│ ├── utils/
+│ │ └── password_generator.py # Secure password generation
+│ ├── app.py # Flask application entry point
+│ ├── config.py # Configuration management
+│ ├── database.py # SQLAlchemy models
+│ └── passwords.db # SQLite database
+│
+├── frontend/
+│ ├── src/
+│ │ ├── components/
+│ │ │ ├── AddPasswordModal.jsx
+│ │ │ ├── Dashboard.jsx
+│ │ │ ├── EditPasswordModal.jsx
+│ │ │ ├── Login.jsx
+│ │ │ ├── PasswordDetailsModal.jsx
+│ │ │ ├── PasswordGenerator.jsx
+│ │ │ ├── ProtectedRoute.jsx
+│ │ │ └── Toast.jsx
+│ │ ├── context/
+│ │ │ └── AuthContext.jsx # Global authentication state
+│ │ ├── services/
+│ │ │ └── api.js # Axios API client
+│ │ ├── App.jsx # Application routing
+│ │ ├── main.jsx # React entry point
+│ │ └── index.css # Global styles
+│ ├── package.json
+│ └── vite.config.js
+│
+├── designs/ # Figma design exports
+├── LICENSE
+└── README.md
 
 text
-src/
-├── components/
-│   ├── Login.jsx                 # Authentication
-│   ├── Dashboard.jsx             # Main interface
-│   ├── AddPasswordModal.jsx      # Create passwords
-│   ├── EditPasswordModal.jsx     # Update passwords
-│   ├── PasswordGenerator.jsx     # Standalone generator
-│   ├── ProtectedRoute.jsx        # Route guards
-│   └── Toast.jsx                 # Notifications
-├── context/
-│   └── AuthContext.jsx           # Global auth state
-└── services/
-    └── api.js                    # API client
-Features Implemented
-Days 1-7: Foundation
-Complete UI/UX design in Figma
 
-Backend API with 10 endpoints
+## Installation
 
-AES-256-GCM encryption (tested and verified)
+### Prerequisites
 
-Session-based authentication
+- Python 3.14 or higher
+- Node.js 16 or higher
+- npm or yarn package manager
 
-SQLite database with normalized schema
+### Backend Setup
 
-Password CRUD operations
+1. Navigate to the backend directory:
 
-Security level classification
-
-Day 8: Dashboard & Core Functionality
-Full password list display
-
-Add password modal with inline generator
-
-Show/Hide password toggle
-
-Copy to clipboard
-
-Delete password with confirmation
-
-Toast notifications
-
-Empty state handling
-
-Day 9: Edit Capability
-Edit password modal with pre-populated data
-
-Password re-encryption on update
-
-Dynamic security level recalculation
-
-Notes field display in password cards
-
-Day 10: Advanced Password Generator
-Standalone generator modal
-
-Collapsible generator in Add Password form
-
-Customizable length slider (8-32 characters)
-
-Character type selection (uppercase, lowercase, numbers, symbols)
-
-Real-time password strength meter
-
-Copy generated password
-
-Security level color coding
-
-Design System
-Color Palette:
-
-text
-Primary:         #00FFA3  (Mint Green - Calm state)
-Background:      #1A1A1A  (Deep Dark - Eye strain reduction)
-Card:            #2A2A2A  (Slightly Lighter)
-Text Primary:    #FFFFFF
-Text Secondary:  #D1D5DB
-Text Tertiary:   #9CA3AF
-Alert:           #F59E0B  (Orange - Warning)
-Critical:        #EF4444  (Red - Danger)
-Edit Action:     #3B82F6  (Blue)
-Generator:       #8B5CF6  (Purple)
-Typography:
-
-Font: System UI stack (Arial, Helvetica fallback)
-
-Headings: 36px bold / 24px semibold
-
-Body: 16px regular
-
-Metadata: 13px italic
-
-UX Principles:
-
-WCAG AAA contrast compliance
-
-Minimum 48px touch targets
-
-Always-visible actions (no hover-only)
-
-Explicit feedback for every interaction
-
-Generous spacing for cognitive comfort
-
-Installation & Setup
-Prerequisites
-Python 3.14+
-
-Node.js 16+
-
-Git
-
-Backend Setup
-bash
+```bash
 cd backend
+Create and activate a virtual environment:
+
+bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+Install dependencies:
+
+bash
 pip install -r requirements.txt
+Initialize the database:
+
+bash
+python init_database.py
+Start the Flask server:
+
+bash
 python app.py
-# Server runs on http://localhost:5000
+The backend will run on http://localhost:5000
+
 Frontend Setup
+Navigate to the frontend directory:
+
 bash
 cd frontend
+Install dependencies:
+
+bash
 npm install
+Start the development server:
+
+bash
 npm run dev
-# App runs on http://localhost:5173
-Test Credentials
-Master Password: MyPassword123
+The frontend will run on http://localhost:5173
 
-Pre-loaded test passwords available
+Usage
+Open your browser and navigate to http://localhost:5173
 
+Enter your master password (first-time users will create a new account)
+
+Add your first password using the "Add Password" button
+
+Use the search bar, filters, and sort options to organize your passwords
+
+Click any password card to view full details
+
+Use the password generator to create strong, random passwords
+
+Keyboard Shortcuts
+Ctrl+K (Cmd+K on Mac): Focus the search bar
+
+ESC: Close any open modal
+
+Enter: Submit forms in modals
+
+Security Considerations
+Master Password
+Your master password is the key to all your encrypted data. BinO-Vault:
+
+Never stores your master password in plain text
+
+Only stores an Argon2id hash for authentication
+
+Uses your master password for encryption/decryption operations
+
+Keeps your master password in memory only during your session
+
+Data Storage
+All passwords are encrypted before being written to the database
+
+The encryption key is derived from your master password using PBKDF2
+
+Each password entry is encrypted individually with a unique salt and IV
+
+The database file (passwords.db) is stored locally on your machine
+
+Best Practices
+Choose a strong, unique master password
+
+Never share your master password
+
+Keep your passwords.db file secure and backed up
+
+Run BinO-Vault on a trusted, malware-free system
+
+Close the application when not in use
+
+Development
 Testing
-Encryption Tests:
+Run encryption tests:
 
 bash
 cd backend
 python test_encryption.py
-# Expected: ✅ ENCRYPTION MODULE WORKING PERFECTLY!
-Integration Tests:
+Run integration tests:
 
 bash
 python test_full_flow.py
-# Expected: ✅ FULL INTEGRATION TEST PASSED!
-Schema Verification:
+Verify database schema:
 
 bash
 python check_schema.py
-# Shows all 3 tables with correct structure
-Development Roadmap
-Week 2 (In Progress):
+Building for Production
+Build the frontend:
 
- Day 8: Dashboard UI + Polish
+bash
+cd frontend
+npm run build
+The production build will be created in the frontend/dist directory.
 
- Day 9: Edit Password Functionality
+Design System
+Color Palette
+Primary: #00FFA3 (Mint Green) - Calm, safety, positive reinforcement
 
- Day 10: Password Generator Enhancements
+Background: #1A1A1A (Dark Gray) - Eye strain reduction
 
- Day 11: Search & Filter
+Card Background: #2A2A2A - Visual hierarchy
 
- Day 12: Password Details View
+Text: #FFFFFF - Maximum contrast
 
- Day 13: Polish & UX Refinements
+Security Levels:
 
- Day 14: Testing & Bug Fixes
+Calm: #00FFA3 (Green)
 
-Week 3 (Planned):
+Alert: #F59E0B (Orange)
 
- Day 15: Security Hardening (session expiry, CSRF, rate limiting)
+Critical: #EF4444 (Red)
 
- Day 16: Final Testing & Deployment
+Typography
+Font Family: System UI (Arial, Helvetica fallback)
 
-Why BinO-Vault?
-Local-First: Your data never leaves your machine. Zero cloud dependency.
+Headings: 36px bold
 
-Transparent Security: Open-source encryption implementation. No black boxes.
+Subheadings: 24px semibold
 
-Cognitive Design: Built with neuroscience principles to reduce stress and improve security habits.
+Body Text: 16px regular
 
-Educational: Real-time feedback teaches users about password security.
+Monospace: For password display
 
-Developer-Friendly: Clean architecture, comprehensive documentation, auditable code.
+Accessibility
+WCAG AAA compliant contrast ratios
+
+Minimum 48px height for interactive elements
+
+Always-visible action buttons (no hover-only UI)
+
+Keyboard navigation support
+
+Screen reader friendly
+
+Neuroscience-Inspired Features
+Stress Reduction
+Dark mode by default reduces eye strain and cortisol levels
+
+Calm color palette triggers parasympathetic nervous system
+
+Generous spacing prevents visual overwhelm
+
+Cognitive Load Minimization
+Single master password (no complex setup)
+
+One-screen dashboard (everything visible at once)
+
+Progressive disclosure (details on demand)
+
+Clear visual hierarchy
+
+Pattern Recognition
+Color-coded security levels for instant comprehension
+
+Consistent iconography throughout the interface
+
+Left-border indicators for peripheral vision activation
+
+Dopamine-Driven Feedback
+Immediate toast notifications for all actions
+
+Visual rewards for strong passwords
+
+Copy confirmations provide instant gratification
+
+Future Development Roadmap
+Week 3 Features (In Development)
+Session expiry after 24 hours of inactivity
+
+CSRF protection for all state-changing operations
+
+Rate limiting on authentication attempts
+
+Recovery key generation and verification
+
+Automatic clipboard clearing after 30 seconds
+
+Error boundary implementation
+
+Cross-browser compatibility testing
 
 License
-MIT License - See LICENSE file for details.
+This project is licensed under the MIT License. See the LICENSE file for details.
 
-Development Notes
-This project is being developed as a 16-day sprint to demonstrate full-stack capabilities, security implementation, and UX design principles. Each day's progress is documented and committed to GitHub.
+Contributing
+This is currently a personal project by Alexander, a first-year Electrical and Electronics Engineering student. Contributions, issues, and feature requests are welcome.
 
-Developer: Alexander
-Start Date: January 2026
-Status: Day 10 Complete (62.5% complete)
+Acknowledgments
+Inspired by neuroscience research on stress reduction and cognitive load
 
-Built with security, designed with psychology, crafted with care.
+Built with security best practices from OWASP guidelines
+
+UI/UX design principles based on cognitive psychology research
+
+Contact
+GitHub: alexander-devstack
+
+Version History
+v0.75 (Current) - Days 1-12 Complete
+
+Search, filter, and sort functionality
+
+Password details view with metadata
+
+Complete CRUD operations
+
+Advanced password generator
+
+Neuroscience-inspired UX
+
+v1.0 (Planned) - Day 16 Release
+
+Security hardening complete
+
+Full testing coverage
+
+Production-ready build
+
+Deployment documentation
 ```
