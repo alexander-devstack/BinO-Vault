@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { passwordAPI } from "../services/api";
 
 export default function AddPasswordModal({ onClose, onSuccess }) {
@@ -12,6 +12,12 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showGeneratorOptions, setShowGeneratorOptions] = useState(false);
+
+  // Auto-focus first input
+  const firstInputRef = useRef(null);
+  useEffect(() => {
+    firstInputRef.current?.focus();
+  }, []);
 
   // Generator options
   const [generatorOptions, setGeneratorOptions] = useState({
@@ -30,7 +36,6 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
   };
 
   const handleGeneratePassword = async () => {
-    // Validate at least one character set is selected
     if (
       !generatorOptions.useUppercase &&
       !generatorOptions.useLowercase &&
@@ -56,8 +61,8 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
           ...formData,
           password: response.password,
         });
-        setShowPassword(true); // Show the generated password
-        setShowGeneratorOptions(false); // Collapse options after generation
+        setShowPassword(true);
+        setShowGeneratorOptions(false);
       }
     } catch (err) {
       setError("Failed to generate password");
@@ -79,8 +84,8 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
       const response = await passwordAPI.create(formData);
 
       if (response.success) {
-        onSuccess(); // Refresh password list
-        onClose(); // Close modal
+        onSuccess();
+        onClose();
       } else {
         setError(response.error || "Failed to save password");
       }
@@ -105,8 +110,12 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
         alignItems: "center",
         zIndex: 1000,
         padding: "20px",
+        animation: "fadeIn 0.2s ease-out",
       }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-password-title"
     >
       <div
         style={{
@@ -117,12 +126,13 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
           width: "100%",
           maxHeight: "90vh",
           overflowY: "auto",
+          animation: "slideUp 0.3s ease-out",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div style={{ marginBottom: "24px" }}>
           <h2
+            id="add-password-title"
             style={{
               color: "white",
               fontSize: "24px",
@@ -137,9 +147,9 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
           </p>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div
+            role="alert"
             style={{
               backgroundColor: "rgba(239, 68, 68, 0.1)",
               border: "1px solid #EF4444",
@@ -154,11 +164,10 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Website */}
           <div style={{ marginBottom: "20px" }}>
             <label
+              htmlFor="website-input"
               style={{
                 display: "block",
                 color: "#D1D5DB",
@@ -170,11 +179,14 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
               Website / Service
             </label>
             <input
+              ref={firstInputRef}
+              id="website-input"
               type="text"
               name="website"
               value={formData.website}
               onChange={handleChange}
               placeholder="e.g., Gmail, Facebook, Netflix"
+              aria-label="Website or service name"
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -189,9 +201,9 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
             />
           </div>
 
-          {/* Username */}
           <div style={{ marginBottom: "20px" }}>
             <label
+              htmlFor="username-input"
               style={{
                 display: "block",
                 color: "#D1D5DB",
@@ -203,11 +215,13 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
               Username / Email
             </label>
             <input
+              id="username-input"
               type="text"
               name="username"
               value={formData.username}
               onChange={handleChange}
               placeholder="yourname@example.com"
+              aria-label="Username or email address"
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -222,9 +236,9 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
             />
           </div>
 
-          {/* Password */}
           <div style={{ marginBottom: "20px" }}>
             <label
+              htmlFor="password-input"
               style={{
                 display: "block",
                 color: "#D1D5DB",
@@ -237,11 +251,13 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
             </label>
             <div style={{ position: "relative" }}>
               <input
+                id="password-input"
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter or generate password"
+                aria-label="Password"
                 style={{
                   width: "100%",
                   padding: "12px 16px",
@@ -268,6 +284,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   style={{
                     padding: "4px 8px",
                     fontSize: "12px",
@@ -282,6 +299,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                 <button
                   type="button"
                   onClick={() => setShowGeneratorOptions(!showGeneratorOptions)}
+                  aria-label="Toggle password generator options"
                   style={{
                     padding: "4px 12px",
                     fontSize: "12px",
@@ -298,7 +316,6 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
               </div>
             </div>
 
-            {/* Generator Options (Collapsible) */}
             {showGeneratorOptions && (
               <div
                 style={{
@@ -309,7 +326,6 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                   border: "2px solid #374151",
                 }}
               >
-                {/* Length Slider */}
                 <div style={{ marginBottom: "16px" }}>
                   <div
                     style={{
@@ -318,7 +334,10 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                       marginBottom: "8px",
                     }}
                   >
-                    <label style={{ fontSize: "13px", color: "#D1D5DB" }}>
+                    <label
+                      htmlFor="length-slider"
+                      style={{ fontSize: "13px", color: "#D1D5DB" }}
+                    >
                       Password Length
                     </label>
                     <span
@@ -332,6 +351,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                     </span>
                   </div>
                   <input
+                    id="length-slider"
                     type="range"
                     min="8"
                     max="32"
@@ -342,6 +362,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                         length: parseInt(e.target.value),
                       })
                     }
+                    aria-label="Password length slider"
                     style={{
                       width: "100%",
                       height: "4px",
@@ -364,7 +385,6 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                   </div>
                 </div>
 
-                {/* Character Type Checkboxes */}
                 <div style={{ marginBottom: "12px" }}>
                   <label
                     style={{
@@ -408,6 +428,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                               [option.key]: e.target.checked,
                             })
                           }
+                          aria-label={`Include ${option.label} characters`}
                           style={{
                             width: "16px",
                             height: "16px",
@@ -421,10 +442,10 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                   </div>
                 </div>
 
-                {/* Generate Button */}
                 <button
                   type="button"
                   onClick={handleGeneratePassword}
+                  aria-label="Generate new password"
                   style={{
                     width: "100%",
                     padding: "10px",
@@ -443,9 +464,9 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
             )}
           </div>
 
-          {/* Notes (Optional) */}
           <div style={{ marginBottom: "24px" }}>
             <label
+              htmlFor="notes-input"
               style={{
                 display: "block",
                 color: "#D1D5DB",
@@ -457,11 +478,13 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
               Notes (Optional)
             </label>
             <textarea
+              id="notes-input"
               name="notes"
               value={formData.notes}
               onChange={handleChange}
               placeholder="Add any notes about this password..."
               rows={3}
+              aria-label="Optional notes"
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -478,7 +501,6 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
             />
           </div>
 
-          {/* Buttons */}
           <div
             style={{
               display: "flex",
@@ -489,6 +511,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
             <button
               type="button"
               onClick={onClose}
+              aria-label="Cancel and close modal"
               style={{
                 padding: "12px 24px",
                 backgroundColor: "#374151",
@@ -505,6 +528,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
             <button
               type="submit"
               disabled={loading}
+              aria-label={loading ? "Saving password" : "Save password"}
               style={{
                 padding: "12px 24px",
                 backgroundColor: loading ? "#00CC82" : "#00FFA3",

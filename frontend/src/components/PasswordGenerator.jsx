@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { passwordAPI } from "../services/api";
 
 export default function PasswordGenerator({ onClose, onUsePassword }) {
@@ -12,8 +12,13 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Auto-focus generate button
+  const generateButtonRef = useRef(null);
+  useEffect(() => {
+    generateButtonRef.current?.focus();
+  }, []);
+
   const generatePassword = async () => {
-    // Validate at least one character set is selected
     if (!useUppercase && !useLowercase && !useDigits && !useSpecial) {
       alert("Please select at least one character type!");
       return;
@@ -56,12 +61,11 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
     }
   };
 
-  // Calculate security level color
   const getSecurityColor = () => {
     if (!strength) return "#9CA3AF";
-    if (strength.level === "Strong") return "#00FFA3"; // Calm
-    if (strength.level === "Medium") return "#F59E0B"; // Alert
-    return "#EF4444"; // Critical
+    if (strength.level === "Strong") return "#00FFA3";
+    if (strength.level === "Medium") return "#F59E0B";
+    return "#EF4444";
   };
 
   return (
@@ -77,8 +81,12 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
         justifyContent: "center",
         alignItems: "center",
         zIndex: 1000,
+        animation: "fadeIn 0.2s ease-out",
       }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="generator-title"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -90,11 +98,12 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
           maxWidth: "90%",
           maxHeight: "90vh",
           overflowY: "auto",
+          animation: "slideUp 0.3s ease-out",
         }}
       >
-        {/* Header */}
         <div style={{ marginBottom: "24px" }}>
           <h2
+            id="generator-title"
             style={{
               fontSize: "24px",
               fontWeight: "600",
@@ -109,7 +118,6 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
           </p>
         </div>
 
-        {/* Generated Password Display */}
         {generatedPassword && (
           <div
             style={{
@@ -128,6 +136,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
                 wordBreak: "break-all",
                 marginBottom: "12px",
               }}
+              aria-live="polite"
             >
               {generatedPassword}
             </div>
@@ -143,6 +152,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
                     backgroundColor: getSecurityColor(),
                     color: "#1A1A1A",
                   }}
+                  aria-label={`Password strength: ${strength.level}`}
                 >
                   {strength.level}
                 </span>
@@ -160,6 +170,9 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
             <div style={{ display: "flex", gap: "8px" }}>
               <button
                 onClick={copyToClipboard}
+                aria-label={
+                  copied ? "Password copied" : "Copy password to clipboard"
+                }
                 style={{
                   flex: 1,
                   padding: "10px",
@@ -177,6 +190,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
               {onUsePassword && (
                 <button
                   onClick={handleUsePassword}
+                  aria-label="Use this password"
                   style={{
                     flex: 1,
                     padding: "10px",
@@ -196,7 +210,6 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
           </div>
         )}
 
-        {/* Length Slider */}
         <div style={{ marginBottom: "24px" }}>
           <div
             style={{
@@ -205,7 +218,10 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
               marginBottom: "8px",
             }}
           >
-            <label style={{ fontSize: "14px", color: "#D1D5DB" }}>
+            <label
+              htmlFor="length-slider"
+              style={{ fontSize: "14px", color: "#D1D5DB" }}
+            >
               Password Length
             </label>
             <span
@@ -214,16 +230,19 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
                 fontWeight: "600",
                 color: "#00FFA3",
               }}
+              aria-live="polite"
             >
               {length}
             </span>
           </div>
           <input
+            id="length-slider"
             type="range"
             min="8"
             max="32"
             value={length}
             onChange={(e) => setLength(parseInt(e.target.value))}
+            aria-label="Password length slider"
             style={{
               width: "100%",
               height: "6px",
@@ -244,7 +263,6 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
           </div>
         </div>
 
-        {/* Character Set Checkboxes */}
         <div style={{ marginBottom: "24px" }}>
           <label
             style={{
@@ -295,6 +313,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
                   type="checkbox"
                   checked={option.state}
                   onChange={(e) => option.setter(e.target.checked)}
+                  aria-label={`Include ${option.label}`}
                   style={{
                     width: "18px",
                     height: "18px",
@@ -308,11 +327,12 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div style={{ display: "flex", gap: "12px" }}>
           <button
+            ref={generateButtonRef}
             onClick={generatePassword}
             disabled={loading}
+            aria-label={loading ? "Generating password" : "Generate password"}
             style={{
               flex: 1,
               padding: "14px",
@@ -330,6 +350,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
           </button>
           <button
             onClick={onClose}
+            aria-label="Close password generator"
             style={{
               padding: "14px 24px",
               backgroundColor: "#374151",

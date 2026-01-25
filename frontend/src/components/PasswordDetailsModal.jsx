@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function PasswordDetailsModal({
   password,
@@ -9,7 +9,17 @@ export default function PasswordDetailsModal({
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState(null);
 
-  // Format timestamp to readable date
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const formatDate = (timestamp) => {
     if (!timestamp) return "N/A";
     const date = new Date(timestamp);
@@ -22,7 +32,6 @@ export default function PasswordDetailsModal({
     });
   };
 
-  // Security level colors
   const getSecurityColor = (level) => {
     switch (level) {
       case "Calm":
@@ -36,7 +45,6 @@ export default function PasswordDetailsModal({
     }
   };
 
-  // Copy to clipboard with feedback
   const copyToClipboard = async (text, type) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -47,17 +55,9 @@ export default function PasswordDetailsModal({
     }
   };
 
-  // Handle ESC key to close modal
-  const handleKeyDown = (e) => {
-    if (e.key === "Escape") {
-      onClose();
-    }
-  };
-
   return (
     <div
       onClick={onClose}
-      onKeyDown={handleKeyDown}
       style={{
         position: "fixed",
         top: 0,
@@ -70,7 +70,11 @@ export default function PasswordDetailsModal({
         alignItems: "center",
         zIndex: 1000,
         padding: "20px",
+        animation: "fadeIn 0.2s ease-out",
       }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="details-title"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -84,11 +88,12 @@ export default function PasswordDetailsModal({
           overflowY: "auto",
           position: "relative",
           borderLeft: `6px solid ${getSecurityColor(password.security_level)}`,
+          animation: "slideUp 0.3s ease-out",
         }}
       >
-        {/* Close Button */}
         <button
           onClick={onClose}
+          aria-label="Close password details"
           style={{
             position: "absolute",
             top: "16px",
@@ -109,7 +114,6 @@ export default function PasswordDetailsModal({
           ✕
         </button>
 
-        {/* Header */}
         <div style={{ marginBottom: "24px" }}>
           <div
             style={{
@@ -120,6 +124,7 @@ export default function PasswordDetailsModal({
             }}
           >
             <h2
+              id="details-title"
               style={{
                 fontSize: "28px",
                 fontWeight: "700",
@@ -141,6 +146,7 @@ export default function PasswordDetailsModal({
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
               }}
+              aria-label={`Security level: ${password.security_level}`}
             >
               {password.security_level}
             </span>
@@ -150,9 +156,9 @@ export default function PasswordDetailsModal({
           </p>
         </div>
 
-        {/* Username Section */}
         <div style={{ marginBottom: "24px" }}>
           <label
+            htmlFor="username-display"
             style={{
               display: "block",
               color: "#D1D5DB",
@@ -175,6 +181,7 @@ export default function PasswordDetailsModal({
             }}
           >
             <code
+              id="username-display"
               style={{
                 flex: 1,
                 color: "white",
@@ -186,6 +193,11 @@ export default function PasswordDetailsModal({
             </code>
             <button
               onClick={() => copyToClipboard(password.username, "username")}
+              aria-label={
+                copyFeedback === "username"
+                  ? "Username copied"
+                  : "Copy username"
+              }
               style={{
                 padding: "6px 12px",
                 backgroundColor:
@@ -204,9 +216,9 @@ export default function PasswordDetailsModal({
           </div>
         </div>
 
-        {/* Password Section */}
         <div style={{ marginBottom: "24px" }}>
           <label
+            htmlFor="password-display"
             style={{
               display: "block",
               color: "#D1D5DB",
@@ -229,6 +241,7 @@ export default function PasswordDetailsModal({
             }}
           >
             <code
+              id="password-display"
               style={{
                 flex: 1,
                 color: "white",
@@ -240,6 +253,7 @@ export default function PasswordDetailsModal({
             </code>
             <button
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+              aria-label={isPasswordVisible ? "Hide password" : "Show password"}
               style={{
                 padding: "6px 12px",
                 backgroundColor: "#374151",
@@ -255,6 +269,11 @@ export default function PasswordDetailsModal({
             </button>
             <button
               onClick={() => copyToClipboard(password.password, "password")}
+              aria-label={
+                copyFeedback === "password"
+                  ? "Password copied"
+                  : "Copy password"
+              }
               style={{
                 padding: "6px 12px",
                 backgroundColor:
@@ -273,7 +292,6 @@ export default function PasswordDetailsModal({
           </div>
         </div>
 
-        {/* Notes Section */}
         {password.notes && password.notes.trim() !== "" && (
           <div style={{ marginBottom: "24px" }}>
             <label
@@ -305,7 +323,6 @@ export default function PasswordDetailsModal({
           </div>
         )}
 
-        {/* Metadata Section */}
         <div
           style={{
             backgroundColor: "#1A1A1A",
@@ -343,10 +360,10 @@ export default function PasswordDetailsModal({
             )}
         </div>
 
-        {/* Action Buttons */}
         <div style={{ display: "flex", gap: "12px" }}>
           <button
             onClick={onEdit}
+            aria-label="Edit this password"
             style={{
               flex: 1,
               padding: "14px",
@@ -366,6 +383,7 @@ export default function PasswordDetailsModal({
           </button>
           <button
             onClick={onDelete}
+            aria-label="Delete this password"
             style={{
               flex: 1,
               padding: "14px",

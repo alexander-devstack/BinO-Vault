@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { passwordAPI } from "../services/api";
 
 export default function EditPasswordModal({ password, onClose, onSuccess }) {
-  // Form state (pre-populated with existing data)
   const [formData, setFormData] = useState({
     website: password.website,
     username: password.username,
@@ -10,10 +9,16 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
     notes: password.notes || "",
   });
 
-  const [showPassword, setShowPassword] = useState(true); // Show by default in edit mode
+  const [showPassword, setShowPassword] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [securityLevel, setSecurityLevel] = useState(password.security_level);
+
+  // Auto-focus first input
+  const firstInputRef = useRef(null);
+  useEffect(() => {
+    firstInputRef.current?.focus();
+  }, []);
 
   // Calculate password strength in real-time
   useEffect(() => {
@@ -59,7 +64,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
           ...formData,
           password: response.password,
         });
-        setShowPassword(true); // Show generated password
+        setShowPassword(true);
       }
     } catch (err) {
       setError("Failed to generate password");
@@ -72,19 +77,17 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
     setError(null);
 
     try {
-      // Validation
       if (!formData.website || !formData.username || !formData.password) {
         setError("Website, username, and password are required");
         setLoading(false);
         return;
       }
 
-      // Call update API
       const response = await passwordAPI.update(password.id, formData);
 
       if (response.success) {
-        onSuccess(); // Refresh dashboard and show toast
-        onClose(); // Close modal
+        onSuccess();
+        onClose();
       } else {
         setError(response.error || "Failed to update password");
       }
@@ -121,8 +124,12 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
         alignItems: "center",
         justifyContent: "center",
         zIndex: 1000,
+        animation: "fadeIn 0.2s ease-out",
       }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-password-title"
     >
       <div
         style={{
@@ -133,10 +140,10 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
           width: "90%",
           maxHeight: "90vh",
           overflowY: "auto",
+          animation: "slideUp 0.3s ease-out",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -146,6 +153,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
           }}
         >
           <h2
+            id="edit-password-title"
             style={{
               fontSize: "24px",
               fontWeight: "600",
@@ -157,6 +165,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
           </h2>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             style={{
               background: "none",
               border: "none",
@@ -169,7 +178,6 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
           </button>
         </div>
 
-        {/* Security Level Badge */}
         <div style={{ marginBottom: "24px", textAlign: "center" }}>
           <span
             style={{
@@ -186,9 +194,9 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
           </span>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div
+            role="alert"
             style={{
               backgroundColor: "#7F1D1D",
               border: "2px solid #EF4444",
@@ -203,11 +211,10 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
-          {/* Website */}
           <div style={{ marginBottom: "16px" }}>
             <label
+              htmlFor="edit-website"
               style={{
                 display: "block",
                 color: "#D1D5DB",
@@ -218,11 +225,14 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
               Website/Service
             </label>
             <input
+              ref={firstInputRef}
+              id="edit-website"
               type="text"
               name="website"
               value={formData.website}
               onChange={handleChange}
               placeholder="e.g., Gmail"
+              aria-label="Website or service name"
               style={{
                 width: "100%",
                 padding: "12px",
@@ -238,9 +248,9 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             />
           </div>
 
-          {/* Username */}
           <div style={{ marginBottom: "16px" }}>
             <label
+              htmlFor="edit-username"
               style={{
                 display: "block",
                 color: "#D1D5DB",
@@ -251,11 +261,13 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
               Username/Email
             </label>
             <input
+              id="edit-username"
               type="text"
               name="username"
               value={formData.username}
               onChange={handleChange}
               placeholder="e.g., yourname@gmail.com"
+              aria-label="Username or email address"
               style={{
                 width: "100%",
                 padding: "12px",
@@ -271,9 +283,9 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             />
           </div>
 
-          {/* Password */}
           <div style={{ marginBottom: "16px" }}>
             <label
+              htmlFor="edit-password"
               style={{
                 display: "block",
                 color: "#D1D5DB",
@@ -285,11 +297,13 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             </label>
             <div style={{ position: "relative" }}>
               <input
+                id="edit-password"
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter password"
+                aria-label="Password"
                 style={{
                   width: "100%",
                   padding: "12px",
@@ -307,7 +321,6 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             </div>
           </div>
 
-          {/* Password Actions */}
           <div
             style={{
               display: "flex",
@@ -318,6 +331,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
               style={{
                 flex: 1,
                 padding: "10px",
@@ -334,6 +348,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             <button
               type="button"
               onClick={handleGeneratePassword}
+              aria-label="Generate new password"
               style={{
                 flex: 1,
                 padding: "10px",
@@ -350,9 +365,9 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             </button>
           </div>
 
-          {/* Notes */}
           <div style={{ marginBottom: "24px" }}>
             <label
+              htmlFor="edit-notes"
               style={{
                 display: "block",
                 color: "#D1D5DB",
@@ -363,11 +378,13 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
               Notes (Optional)
             </label>
             <textarea
+              id="edit-notes"
               name="notes"
               value={formData.notes}
               onChange={handleChange}
               placeholder="Add any notes about this password"
               rows="3"
+              aria-label="Optional notes"
               style={{
                 width: "100%",
                 padding: "12px",
@@ -384,11 +401,11 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             />
           </div>
 
-          {/* Submit Buttons */}
           <div style={{ display: "flex", gap: "12px" }}>
             <button
               type="button"
               onClick={onClose}
+              aria-label="Cancel editing"
               style={{
                 flex: 1,
                 padding: "14px",
@@ -406,6 +423,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
             <button
               type="submit"
               disabled={loading}
+              aria-label={loading ? "Saving changes" : "Save changes"}
               style={{
                 flex: 1,
                 padding: "14px",
