@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { passwordAPI } from "../services/api";
+import Spinner from "./Spinner";
 
 export default function AddPasswordModal({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -538,9 +539,21 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                 fontSize: "16px",
                 fontWeight: "600",
                 cursor: loading ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                justifyContent: "center",
+                opacity: loading ? 0.7 : 1,
               }}
             >
-              {loading ? "Saving..." : "Save Password"}
+              {loading ? (
+                <>
+                  <Spinner size="small" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                "Save Password"
+              )}
             </button>
           </div>
         </form>

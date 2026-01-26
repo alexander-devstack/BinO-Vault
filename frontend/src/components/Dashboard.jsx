@@ -7,6 +7,7 @@ import EditPasswordModal from "./EditPasswordModal";
 import PasswordGenerator from "./PasswordGenerator";
 import PasswordDetailsModal from "./PasswordDetailsModal";
 import Toast from "./Toast";
+import Spinner from "./Spinner";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -246,13 +247,23 @@ export default function Dashboard() {
         {loading ? (
           <div
             style={{
-              textAlign: "center",
-              padding: "48px",
-              color: "#D1D5DB",
-              fontSize: "18px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "80px 0",
             }}
           >
-            Loading your passwords...
+            <Spinner size="large" />
+            <p
+              style={{
+                color: "#9CA3AF",
+                fontSize: "16px",
+                marginTop: "24px",
+              }}
+            >
+              Loading your passwords...
+            </p>
           </div>
         ) : passwords.length === 0 ? (
           <div
