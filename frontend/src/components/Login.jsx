@@ -20,7 +20,7 @@ export default function Login() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5000/auth/login", {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,11 +33,9 @@ export default function Login() {
 
       const data = await response.json();
 
-      if (response.ok && data.session_token) {
-        // Store session token for reference
-        localStorage.setItem("sessionToken", data.session_token);
-
-        // Navigate to dashboard
+      if (response.ok && data.success) {
+        // Store user_id as session token
+        localStorage.setItem("sessionToken", data.user_id.toString());
         navigate("/dashboard");
       } else {
         setError(data.error || "Login failed");

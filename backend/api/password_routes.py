@@ -1,6 +1,23 @@
 from flask import Blueprint, request, jsonify, session
 import sys
 import os
+from datetime import datetime
+
+def check_session_expiry():
+    """Check if session is expired, return (is_valid, error_response)"""
+    from flask import session
+    
+    if 'user_id' not in session:
+        return False, ({'error': 'Not authenticated'}, 401)
+    
+    if 'expires_at' in session:
+        expires_at = datetime.fromisoformat(session['expires_at'])
+        if datetime.now() > expires_at:
+            session.clear()
+            return False, ({'error': 'Session expired. Please log in again.'}, 401)
+    
+    return True, None
+
 
 # Add parent directory to path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,19 +40,21 @@ def require_auth(f):
     WHY WE NEED THIS:
     - Prevents unauthorized access to password vault
     - Checks if user is logged in (session exists)
-    - Returns 401 if not authenticated
+    - Validates session hasn't expired (24-hour timeout)
+    - Returns 401 if not authenticated or expired
     """
 
     def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            return jsonify({
-                'success': False,
-                'error': 'Authentication required. Please login first.'
-            }), 401
+        # Check session expiry first
+        is_valid, error_response = check_session_expiry()
+        if not is_valid:
+            return jsonify(error_response[0]), error_response[1]
+        
         return f(*args, **kwargs)
 
     decorated_function.__name__ = f.__name__
     return decorated_function
+
 
 
 @password_bp.route('/', methods=['GET'])

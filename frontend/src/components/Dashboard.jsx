@@ -8,6 +8,7 @@ import PasswordGenerator from "./PasswordGenerator";
 import PasswordDetailsModal from "./PasswordDetailsModal";
 import Toast from "./Toast";
 import Spinner from "./Spinner";
+import SettingsModal from "./SettingsModal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLevel, setFilterLevel] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
+  const [showSettings, setShowSettings] = useState(false);
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
@@ -87,7 +89,23 @@ export default function Dashboard() {
   const copyToClipboard = async (text, type) => {
     try {
       await navigator.clipboard.writeText(text);
-      showToast(`${type} copied to clipboard!`, "success");
+      showToast(`${type} copied to clipboard! 🔒 Will clear in 30s`, "success");
+
+      // Auto-clear clipboard after 30 seconds
+      setTimeout(async () => {
+        try {
+          const currentClipboard = await navigator.clipboard.readText();
+          // Only clear if clipboard still contains the same text
+          if (currentClipboard === text) {
+            await navigator.clipboard.writeText("");
+            showToast("Clipboard cleared for security 🔒", "success");
+          }
+        } catch (err) {
+          console.log(
+            "Clipboard auto-clear skipped (permission denied or already changed)",
+          );
+        }
+      }, 30000); // 30 seconds
     } catch (err) {
       console.error("Failed to copy:", err);
       showToast("Failed to copy to clipboard", "error");
@@ -208,6 +226,25 @@ export default function Dashboard() {
             >
               🎲 Generate Password
             </button>
+            <button
+              onClick={() => setShowSettings(true)}
+              style={{
+                padding: "12px 24px",
+                backgroundColor: "#6B7280",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "background-color 0.2s",
+              }}
+              onMouseOver={(e) => (e.target.style.backgroundColor = "#4B5563")}
+              onMouseOut={(e) => (e.target.style.backgroundColor = "#6B7280")}
+            >
+              ⚙️ Settings
+            </button>
+
             <button
               onClick={handleLogout}
               style={{
@@ -792,6 +829,9 @@ export default function Dashboard() {
             type={toast.type}
             onClose={() => setToast(null)}
           />
+        )}
+        {showSettings && (
+          <SettingsModal onClose={() => setShowSettings(false)} />
         )}
       </div>
     </div>
