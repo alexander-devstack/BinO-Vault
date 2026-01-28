@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Base URL for your Flask backend
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://binovault-api.onrender.com";
 
 // Create axios instance with default config
 const apiClient = axios.create({
