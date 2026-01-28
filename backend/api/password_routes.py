@@ -1,92 +1,51 @@
 from flask import Blueprint, request, jsonify, session
-import sys
-import os
 from datetime import datetime
+from database_postgres import SessionLocal, PasswordEntry
+from crypto.encryption import PasswordEncryption
+from utils.password_generator import PasswordGenerator
+
+password_bp = Blueprint('passwords', __name__, url_prefix='/api/passwords')
+pwd_gen = PasswordGenerator()
 
 def check_session_expiry():
     """Check if session is expired, return (is_valid, error_response)"""
-    from flask import session
-    
     if 'user_id' not in session:
         return False, ({'error': 'Not authenticated'}, 401)
     
     if 'expires_at' in session:
         expires_at = datetime.fromisoformat(session['expires_at'])
-        if datetime.now() > expires_at:
+        if datetime.utcnow() > expires_at:
             session.clear()
             return False, ({'error': 'Session expired. Please log in again.'}, 401)
     
     return True, None
 
-
-# Add parent directory to path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
-
-from database import DatabaseManager, PasswordEntry
-from crypto.encryption import PasswordEncryption
-from utils.password_generator import PasswordGenerator
-
-password_bp = Blueprint('passwords', __name__, url_prefix='/api/passwords')
-db = DatabaseManager()
-pwd_gen = PasswordGenerator()
-
+def get_db():
+    """Get database session"""
+    return SessionLocal()
 
 def require_auth(f):
-    """
-    Decorator to require authentication for routes.
-
-    WHY WE NEED THIS:
-    - Prevents unauthorized access to password vault
-    - Checks if user is logged in (session exists)
-    - Validates session hasn't expired (24-hour timeout)
-    - Returns 401 if not authenticated or expired
-    """
-
+    """Decorator to require authentication for routes."""
     def decorated_function(*args, **kwargs):
-        # Check session expiry first
         is_valid, error_response = check_session_expiry()
         if not is_valid:
             return jsonify(error_response[0]), error_response[1]
-        
         return f(*args, **kwargs)
-
+    
     decorated_function.__name__ = f.__name__
     return decorated_function
-
-
 
 @password_bp.route('/', methods=['GET'])
 @require_auth
 def get_all_passwords():
-    """
-    Get all passwords for logged-in user.
-
-    RESPONSE:
-    {
-        "success": true,
-        "passwords": [
-            {
-                "id": 1,
-                "website": "Gmail",
-                "username": "yourname@gmail.com",
-                "password": "decrypted-password",
-                "security_level": "Calm",
-                "created_at": "2026-01-16 10:00:00"
-            }
-        ]
-    }
-    """
+    """Get all passwords for logged-in user."""
     try:
         user_id = session['user_id']
         master_password = session['master_password']
 
-        # Get all password entries for this user
-        db_session = db.get_session()
-        entries = db_session.query(PasswordEntry).filter_by(user_id=user_id).all()
+        db = get_db()
+        entries = db.query(PasswordEntry).filter_by(user_id=user_id).all()
 
-        # Decrypt passwords
         encryptor = PasswordEncryption(master_password)
         passwords = []
 
@@ -105,7 +64,6 @@ def get_all_passwords():
                     'updated_at': entry.updated_at.strftime('%Y-%m-%d %H:%M:%S')
                 })
             except Exception as e:
-                # If decryption fails, still include entry but mark password as inaccessible
                 passwords.append({
                     'id': entry.id,
                     'website': entry.website,
@@ -115,7 +73,7 @@ def get_all_passwords():
                     'error': str(e)
                 })
 
-        db_session.close()
+        db.close()
 
         return jsonify({
             'success': True,
@@ -129,29 +87,10 @@ def get_all_passwords():
             'error': f'Failed to retrieve passwords: {str(e)}'
         }), 500
 
-
 @password_bp.route('/', methods=['POST'])
 @require_auth
 def add_password():
-    """
-    Add new password to vault.
-
-    REQUEST BODY:
-    {
-        "website": "Gmail",
-        "username": "yourname@gmail.com",
-        "password": "MyPassword123!",
-        "notes": "Work email account"  // optional
-    }
-
-    RESPONSE:
-    {
-        "success": true,
-        "message": "Password saved successfully",
-        "password_id": 1,
-        "security_level": "Strong"
-    }
-    """
+    """Add new password to vault."""
     try:
         user_id = session['user_id']
         master_password = session['master_password']
@@ -162,30 +101,25 @@ def add_password():
         password = data.get('password')
         notes = data.get('notes', '')
 
-        # Validation
         if not website or not username or not password:
             return jsonify({
                 'success': False,
                 'error': 'Website, username, and password are required'
             }), 400
 
-        # Calculate password strength
         strength = pwd_gen.calculate_strength(password)
 
-        # Map strength to security level (for your UI colors)
         if strength['level'] == 'Strong':
-            security_level = 'Calm'  # Green
+            security_level = 'Calm'
         elif strength['level'] == 'Medium':
-            security_level = 'Alert'  # Orange
+            security_level = 'Alert'
         else:
-            security_level = 'Critical'  # Red
+            security_level = 'Critical'
 
-        # Encrypt password
         encryptor = PasswordEncryption(master_password)
         encrypted_password = encryptor.encrypt(password)
 
-        # Save to database
-        db_session = db.get_session()
+        db = get_db()
 
         new_entry = PasswordEntry(
             user_id=user_id,
@@ -196,11 +130,10 @@ def add_password():
             notes=notes
         )
 
-        db_session.add(new_entry)
-        db_session.commit()
-
+        db.add(new_entry)
+        db.commit()
         password_id = new_entry.id
-        db_session.close()
+        db.close()
 
         return jsonify({
             'success': True,
@@ -216,43 +149,27 @@ def add_password():
             'error': f'Failed to save password: {str(e)}'
         }), 500
 
-
 @password_bp.route('/<int:password_id>', methods=['GET'])
 @require_auth
 def get_password(password_id):
-    """
-    Get specific password by ID.
-
-    RESPONSE:
-    {
-        "success": true,
-        "password": {
-            "id": 1,
-            "website": "Gmail",
-            "username": "yourname@gmail.com",
-            "password": "decrypted-password",
-            "security_level": "Calm"
-        }
-    }
-    """
+    """Get specific password by ID."""
     try:
         user_id = session['user_id']
         master_password = session['master_password']
 
-        db_session = db.get_session()
-        entry = db_session.query(PasswordEntry).filter_by(
+        db = get_db()
+        entry = db.query(PasswordEntry).filter_by(
             id=password_id,
             user_id=user_id
         ).first()
 
         if not entry:
-            db_session.close()
+            db.close()
             return jsonify({
                 'success': False,
                 'error': 'Password not found'
             }), 404
 
-        # Decrypt password
         encryptor = PasswordEncryption(master_password)
         decrypted_password = encryptor.decrypt(entry.encrypted_password)
 
@@ -267,7 +184,7 @@ def get_password(password_id):
             'updated_at': entry.updated_at.strftime('%Y-%m-%d %H:%M:%S')
         }
 
-        db_session.close()
+        db.close()
 
         return jsonify({
             'success': True,
@@ -280,41 +197,29 @@ def get_password(password_id):
             'error': f'Failed to retrieve password: {str(e)}'
         }), 500
 
-
 @password_bp.route('/<int:password_id>', methods=['PUT'])
 @require_auth
 def update_password(password_id):
-    """
-    Update existing password.
-
-    REQUEST BODY:
-    {
-        "website": "Gmail",  // optional
-        "username": "newemail@gmail.com",  // optional
-        "password": "NewPassword123!",  // optional
-        "notes": "Updated notes"  // optional
-    }
-    """
+    """Update existing password."""
     try:
         user_id = session['user_id']
         master_password = session['master_password']
 
         data = request.get_json()
 
-        db_session = db.get_session()
-        entry = db_session.query(PasswordEntry).filter_by(
+        db = get_db()
+        entry = db.query(PasswordEntry).filter_by(
             id=password_id,
             user_id=user_id
         ).first()
 
         if not entry:
-            db_session.close()
+            db.close()
             return jsonify({
                 'success': False,
                 'error': 'Password not found'
             }), 404
 
-        # Update fields if provided
         if 'website' in data:
             entry.website = data['website']
 
@@ -322,11 +227,9 @@ def update_password(password_id):
             entry.username = data['username']
 
         if 'password' in data:
-            # Calculate new strength
             new_password = data['password']
             strength = pwd_gen.calculate_strength(new_password)
 
-            # Update security level
             if strength['level'] == 'Strong':
                 entry.security_level = 'Calm'
             elif strength['level'] == 'Medium':
@@ -334,15 +237,14 @@ def update_password(password_id):
             else:
                 entry.security_level = 'Critical'
 
-            # Encrypt new password
             encryptor = PasswordEncryption(master_password)
             entry.encrypted_password = encryptor.encrypt(new_password)
 
         if 'notes' in data:
             entry.notes = data['notes']
 
-        db_session.commit()
-        db_session.close()
+        db.commit()
+        db.close()
 
         return jsonify({
             'success': True,
@@ -355,38 +257,29 @@ def update_password(password_id):
             'error': f'Failed to update password: {str(e)}'
         }), 500
 
-
 @password_bp.route('/<int:password_id>', methods=['DELETE'])
 @require_auth
 def delete_password(password_id):
-    """
-    Delete password from vault.
-
-    RESPONSE:
-    {
-        "success": true,
-        "message": "Password deleted successfully"
-    }
-    """
+    """Delete password from vault."""
     try:
         user_id = session['user_id']
 
-        db_session = db.get_session()
-        entry = db_session.query(PasswordEntry).filter_by(
+        db = get_db()
+        entry = db.query(PasswordEntry).filter_by(
             id=password_id,
             user_id=user_id
         ).first()
 
         if not entry:
-            db_session.close()
+            db.close()
             return jsonify({
                 'success': False,
                 'error': 'Password not found'
             }), 404
 
-        db_session.delete(entry)
-        db_session.commit()
-        db_session.close()
+        db.delete(entry)
+        db.commit()
+        db.close()
 
         return jsonify({
             'success': True,
@@ -399,32 +292,10 @@ def delete_password(password_id):
             'error': f'Failed to delete password: {str(e)}'
         }), 500
 
-
 @password_bp.route('/generate', methods=['POST'])
 @require_auth
 def generate_password():
-    """
-    Generate strong random password.
-
-    REQUEST BODY (all optional):
-    {
-        "length": 16,
-        "use_uppercase": true,
-        "use_digits": true,
-        "use_special": true
-    }
-
-    RESPONSE:
-    {
-        "success": true,
-        "password": "xK9#mL2$vB5@nP8!",
-        "strength": {
-            "level": "Strong",
-            "score": 100,
-            "feedback": ["Great password!"]
-        }
-    }
-    """
+    """Generate strong random password."""
     try:
         data = request.get_json() or {}
 
@@ -433,7 +304,6 @@ def generate_password():
         use_digits = data.get('use_digits', True)
         use_special = data.get('use_special', True)
 
-        # Generate password
         password = pwd_gen.generate(
             length=length,
             use_uppercase=use_uppercase,
@@ -441,7 +311,6 @@ def generate_password():
             use_special=use_special
         )
 
-        # Calculate strength
         strength = pwd_gen.calculate_strength(password)
 
         return jsonify({
