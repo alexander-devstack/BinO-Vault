@@ -23,12 +23,18 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 # ✅ Enable CORS with credentials support (needed for sessions)
 CORS(app, resources={
     r"/*": {
-        "origins": ["http://localhost:5173"],  # Your frontend URL
+        "origins": [
+            "http://localhost:5173",      # Vite dev server
+            "http://localhost:3000",       # Production build (serve)
+            "http://192.168.137.1:3000",  # Network address
+            "http://127.0.0.1:3000"       # Localhost alias
+        ],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True  # CRITICAL for sessions
     }
 })
+
 
 
 
