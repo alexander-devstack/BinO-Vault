@@ -12,7 +12,6 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Auto-focus generate button
   const generateButtonRef = useRef(null);
   useEffect(() => {
     generateButtonRef.current?.focus();
@@ -81,6 +80,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
         justifyContent: "center",
         alignItems: "center",
         zIndex: 1000,
+        padding: "20px",
         animation: "fadeIn 0.2s ease-out",
       }}
       onClick={onClose}
@@ -92,10 +92,10 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
         onClick={(e) => e.stopPropagation()}
         style={{
           backgroundColor: "#2A2A2A",
-          padding: "32px",
+          padding: window.innerWidth <= 480 ? "24px" : "32px",
           borderRadius: "12px",
-          width: "500px",
-          maxWidth: "90%",
+          width: window.innerWidth <= 768 ? "95vw" : "500px",
+          maxWidth: window.innerWidth <= 768 ? "95vw" : "500px",
           maxHeight: "90vh",
           overflowY: "auto",
           animation: "slideUp 0.3s ease-out",
@@ -105,7 +105,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
           <h2
             id="generator-title"
             style={{
-              fontSize: "24px",
+              fontSize: window.innerWidth <= 480 ? "20px" : "24px",
               fontWeight: "600",
               color: "#FFFFFF",
               marginBottom: "8px",
@@ -131,7 +131,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
             <div
               style={{
                 fontFamily: "monospace",
-                fontSize: "18px",
+                fontSize: window.innerWidth <= 480 ? "16px" : "18px",
                 color: "#FFFFFF",
                 wordBreak: "break-all",
                 marginBottom: "12px",
@@ -167,7 +167,13 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
                 </span>
               </div>
             )}
-            <div style={{ display: "flex", gap: "8px" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                flexWrap: window.innerWidth <= 480 ? "wrap" : "nowrap",
+              }}
+            >
               <button
                 onClick={copyToClipboard}
                 aria-label={
@@ -183,6 +189,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
                   fontSize: "14px",
                   fontWeight: "600",
                   cursor: "pointer",
+                  minWidth: window.innerWidth <= 480 ? "100%" : "auto",
                 }}
               >
                 {copied ? "✓ Copied!" : "📋 Copy"}
@@ -201,6 +208,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
                     fontSize: "14px",
                     fontWeight: "600",
                     cursor: "pointer",
+                    minWidth: window.innerWidth <= 480 ? "100%" : "auto",
                   }}
                 >
                   ✓ Use This Password
@@ -327,7 +335,13 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            flexWrap: window.innerWidth <= 480 ? "wrap" : "nowrap",
+          }}
+        >
           <button
             ref={generateButtonRef}
             onClick={generatePassword}
@@ -344,6 +358,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
               fontWeight: "600",
               cursor: loading ? "not-allowed" : "pointer",
               opacity: loading ? 0.7 : 1,
+              minWidth: window.innerWidth <= 480 ? "100%" : "auto",
             }}
           >
             {loading ? "Generating..." : "🎲 Generate Password"}
@@ -360,6 +375,7 @@ export default function PasswordGenerator({ onClose, onUsePassword }) {
               fontSize: "16px",
               fontWeight: "600",
               cursor: "pointer",
+              minWidth: window.innerWidth <= 480 ? "100%" : "auto",
             }}
           >
             Close

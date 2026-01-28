@@ -14,13 +14,11 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
   const [error, setError] = useState(null);
   const [securityLevel, setSecurityLevel] = useState(password.security_level);
 
-  // Auto-focus first input
   const firstInputRef = useRef(null);
   useEffect(() => {
     firstInputRef.current?.focus();
   }, []);
 
-  // Calculate password strength in real-time
   useEffect(() => {
     if (formData.password) {
       const length = formData.password.length;
@@ -124,6 +122,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
         alignItems: "center",
         justifyContent: "center",
         zIndex: 1000,
+        padding: "20px",
         animation: "fadeIn 0.2s ease-out",
       }}
       onClick={onClose}
@@ -135,9 +134,9 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
         style={{
           backgroundColor: "#2A2A2A",
           borderRadius: "16px",
-          padding: "32px",
-          maxWidth: "500px",
-          width: "90%",
+          padding: window.innerWidth <= 480 ? "24px" : "32px",
+          width: window.innerWidth <= 768 ? "95vw" : "500px",
+          maxWidth: window.innerWidth <= 768 ? "95vw" : "500px",
           maxHeight: "90vh",
           overflowY: "auto",
           animation: "slideUp 0.3s ease-out",
@@ -155,7 +154,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
           <h2
             id="edit-password-title"
             style={{
-              fontSize: "24px",
+              fontSize: window.innerWidth <= 480 ? "20px" : "24px",
               fontWeight: "600",
               color: "white",
               margin: 0,
@@ -242,6 +241,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
                 color: "white",
                 fontSize: "16px",
                 outline: "none",
+                boxSizing: "border-box",
               }}
               onFocus={(e) => (e.target.style.borderColor = "#00FFA3")}
               onBlur={(e) => (e.target.style.borderColor = "#374151")}
@@ -277,6 +277,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
                 color: "white",
                 fontSize: "16px",
                 outline: "none",
+                boxSizing: "border-box",
               }}
               onFocus={(e) => (e.target.style.borderColor = "#00FFA3")}
               onBlur={(e) => (e.target.style.borderColor = "#374151")}
@@ -314,6 +315,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
                   fontSize: "16px",
                   outline: "none",
                   fontFamily: "monospace",
+                  boxSizing: "border-box",
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "#00FFA3")}
                 onBlur={(e) => (e.target.style.borderColor = "#374151")}
@@ -326,6 +328,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
               display: "flex",
               gap: "8px",
               marginBottom: "16px",
+              flexWrap: window.innerWidth <= 480 ? "wrap" : "nowrap",
             }}
           >
             <button
@@ -341,6 +344,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
                 borderRadius: "8px",
                 fontSize: "14px",
                 cursor: "pointer",
+                minWidth: window.innerWidth <= 480 ? "100%" : "auto",
               }}
             >
               {showPassword ? "🙈 Hide" : "👁️ Show"}
@@ -359,6 +363,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
                 fontSize: "14px",
                 fontWeight: "600",
                 cursor: "pointer",
+                minWidth: window.innerWidth <= 480 ? "100%" : "auto",
               }}
             >
               🎲 Generate
@@ -395,13 +400,20 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
                 fontSize: "14px",
                 outline: "none",
                 resize: "vertical",
+                boxSizing: "border-box",
               }}
               onFocus={(e) => (e.target.style.borderColor = "#00FFA3")}
               onBlur={(e) => (e.target.style.borderColor = "#374151")}
             />
           </div>
 
-          <div style={{ display: "flex", gap: "12px" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              flexWrap: window.innerWidth <= 480 ? "wrap" : "nowrap",
+            }}
+          >
             <button
               type="button"
               onClick={onClose}
@@ -416,6 +428,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
                 fontSize: "16px",
                 fontWeight: "600",
                 cursor: "pointer",
+                minWidth: window.innerWidth <= 480 ? "100%" : "auto",
               }}
             >
               Cancel
@@ -434,6 +447,7 @@ export default function EditPasswordModal({ password, onClose, onSuccess }) {
                 fontSize: "16px",
                 fontWeight: "600",
                 cursor: loading ? "not-allowed" : "pointer",
+                minWidth: window.innerWidth <= 480 ? "100%" : "auto",
               }}
             >
               {loading ? "Saving..." : "💾 Save Changes"}

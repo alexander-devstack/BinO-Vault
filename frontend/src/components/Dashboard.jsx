@@ -182,7 +182,9 @@ export default function Dashboard() {
       }}
     >
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+        {/* MOBILE-RESPONSIVE HEADER */}
         <div
+          className="dashboard-header"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -205,7 +207,10 @@ export default function Dashboard() {
               Your passwords are safe
             </p>
           </div>
-          <div style={{ display: "flex", gap: "12px" }}>
+          <div
+            className="dashboard-header-buttons"
+            style={{ display: "flex", gap: "12px" }}
+          >
             <button
               onClick={() => setShowGenerator(true)}
               style={{
@@ -221,6 +226,7 @@ export default function Dashboard() {
               }}
               onMouseOver={(e) => (e.target.style.backgroundColor = "#7C3AED")}
               onMouseOut={(e) => (e.target.style.backgroundColor = "#8B5CF6")}
+              aria-label="Open password generator"
             >
               🎲 Generate Password
             </button>
@@ -239,10 +245,10 @@ export default function Dashboard() {
               }}
               onMouseOver={(e) => (e.target.style.backgroundColor = "#4B5563")}
               onMouseOut={(e) => (e.target.style.backgroundColor = "#6B7280")}
+              aria-label="Open settings"
             >
               ⚙️ Settings
             </button>
-
             <button
               onClick={handleLogout}
               style={{
@@ -258,6 +264,7 @@ export default function Dashboard() {
               }}
               onMouseOver={(e) => (e.target.style.backgroundColor = "#DC2626")}
               onMouseOut={(e) => (e.target.style.backgroundColor = "#EF4444")}
+              aria-label="Logout"
             >
               Logout
             </button>
@@ -350,6 +357,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div>
+            {/* MOBILE-RESPONSIVE SEARCH/FILTER */}
             <div
               style={{
                 backgroundColor: "#2A2A2A",
@@ -401,7 +409,10 @@ export default function Dashboard() {
                   </button>
                 )}
               </div>
+
+              {/* MOBILE-RESPONSIVE FILTER SECTION */}
               <div
+                className="search-filter-container"
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -410,7 +421,10 @@ export default function Dashboard() {
                   gap: "12px",
                 }}
               >
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <div
+                  className="filter-buttons"
+                  style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}
+                >
                   <span
                     style={{
                       color: "#9CA3AF",
@@ -557,6 +571,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div
+                className="password-grid"
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -566,6 +581,7 @@ export default function Dashboard() {
                 {filteredPasswords.map((pwd) => (
                   <div
                     key={pwd.id}
+                    className="password-card"
                     onClick={() => setViewingPassword(pwd)}
                     style={{
                       backgroundColor: "#2A2A2A",
@@ -582,7 +598,6 @@ export default function Dashboard() {
                       (e.currentTarget.style.backgroundColor = "#2A2A2A")
                     }
                   >
-                    {/* Avatar + Header */}
                     <div
                       style={{
                         display: "flex",
@@ -616,12 +631,10 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    {/* Password Strength Bar */}
                     <div style={{ marginBottom: "12px" }}>
                       <StrengthBar level={pwd.security_level} />
                     </div>
 
-                    {/* Notes */}
                     {pwd.notes && pwd.notes.trim() !== "" && (
                       <p
                         style={{
@@ -639,7 +652,6 @@ export default function Dashboard() {
                       </p>
                     )}
 
-                    {/* Password Field */}
                     <div
                       style={{
                         display: "flex",
@@ -697,7 +709,6 @@ export default function Dashboard() {
                       </button>
                     </div>
 
-                    {/* Action Buttons */}
                     <div style={{ display: "flex", gap: "12px" }}>
                       <button
                         onClick={(e) => {

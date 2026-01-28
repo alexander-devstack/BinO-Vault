@@ -14,13 +14,11 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showGeneratorOptions, setShowGeneratorOptions] = useState(false);
 
-  // Auto-focus first input
   const firstInputRef = useRef(null);
   useEffect(() => {
     firstInputRef.current?.focus();
   }, []);
 
-  // Generator options
   const [generatorOptions, setGeneratorOptions] = useState({
     length: 16,
     useUppercase: true,
@@ -123,8 +121,8 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
           backgroundColor: "#2A2A2A",
           borderRadius: "16px",
           padding: "32px",
-          maxWidth: "500px",
-          width: "100%",
+          width: window.innerWidth <= 768 ? "95vw" : "500px",
+          maxWidth: window.innerWidth <= 768 ? "95vw" : "500px",
           maxHeight: "90vh",
           overflowY: "auto",
           animation: "slideUp 0.3s ease-out",
@@ -507,6 +505,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
               display: "flex",
               gap: "12px",
               justifyContent: "flex-end",
+              flexWrap: "wrap",
             }}
           >
             <button
@@ -522,6 +521,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                 fontSize: "16px",
                 fontWeight: "600",
                 cursor: "pointer",
+                flex: window.innerWidth <= 480 ? "1 1 100%" : "0 1 auto",
               }}
             >
               Cancel
@@ -544,6 +544,7 @@ export default function AddPasswordModal({ onClose, onSuccess }) {
                 gap: "8px",
                 justifyContent: "center",
                 opacity: loading ? 0.7 : 1,
+                flex: window.innerWidth <= 480 ? "1 1 100%" : "0 1 auto",
               }}
             >
               {loading ? (

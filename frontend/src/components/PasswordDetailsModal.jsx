@@ -9,7 +9,6 @@ export default function PasswordDetailsModal({
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState(null);
 
-  // Handle ESC key to close modal
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
@@ -81,9 +80,9 @@ export default function PasswordDetailsModal({
         style={{
           backgroundColor: "#2A2A2A",
           borderRadius: "16px",
-          padding: "32px",
-          maxWidth: "600px",
-          width: "100%",
+          padding: window.innerWidth <= 480 ? "24px" : "32px",
+          width: window.innerWidth <= 768 ? "95vw" : "600px",
+          maxWidth: window.innerWidth <= 768 ? "95vw" : "600px",
           maxHeight: "90vh",
           overflowY: "auto",
           position: "relative",
@@ -114,19 +113,20 @@ export default function PasswordDetailsModal({
           ✕
         </button>
 
-        <div style={{ marginBottom: "24px" }}>
+        <div style={{ marginBottom: "24px", paddingRight: "40px" }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: "12px",
               marginBottom: "8px",
+              flexWrap: "wrap",
             }}
           >
             <h2
               id="details-title"
               style={{
-                fontSize: "28px",
+                fontSize: window.innerWidth <= 480 ? "22px" : "28px",
                 fontWeight: "700",
                 color: "white",
                 margin: 0,
@@ -136,7 +136,7 @@ export default function PasswordDetailsModal({
             </h2>
             <span
               style={{
-                fontSize: "13px",
+                fontSize: window.innerWidth <= 480 ? "11px" : "13px",
                 padding: "6px 12px",
                 backgroundColor:
                   getSecurityColor(password.security_level) + "20",
@@ -178,6 +178,7 @@ export default function PasswordDetailsModal({
               padding: "12px 16px",
               borderRadius: "8px",
               border: "2px solid #374151",
+              flexWrap: window.innerWidth <= 480 ? "wrap" : "nowrap",
             }}
           >
             <code
@@ -185,8 +186,9 @@ export default function PasswordDetailsModal({
               style={{
                 flex: 1,
                 color: "white",
-                fontSize: "16px",
+                fontSize: window.innerWidth <= 480 ? "14px" : "16px",
                 fontFamily: "monospace",
+                wordBreak: "break-all",
               }}
             >
               {password.username}
@@ -209,6 +211,7 @@ export default function PasswordDetailsModal({
                 fontWeight: "600",
                 cursor: "pointer",
                 transition: "all 0.2s",
+                whiteSpace: "nowrap",
               }}
             >
               {copyFeedback === "username" ? "✓ Copied!" : "📋 Copy"}
@@ -233,11 +236,12 @@ export default function PasswordDetailsModal({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "12px",
+              gap: "8px",
               backgroundColor: "#1A1A1A",
               padding: "12px 16px",
               borderRadius: "8px",
               border: "2px solid #374151",
+              flexWrap: window.innerWidth <= 480 ? "wrap" : "nowrap",
             }}
           >
             <code
@@ -245,8 +249,10 @@ export default function PasswordDetailsModal({
               style={{
                 flex: 1,
                 color: "white",
-                fontSize: "16px",
+                fontSize: window.innerWidth <= 480 ? "14px" : "16px",
                 fontFamily: "monospace",
+                wordBreak: "break-all",
+                minWidth: window.innerWidth <= 480 ? "100%" : "auto",
               }}
             >
               {isPasswordVisible ? password.password : "••••••••••••"}
@@ -263,6 +269,7 @@ export default function PasswordDetailsModal({
                 fontSize: "13px",
                 fontWeight: "600",
                 cursor: "pointer",
+                whiteSpace: "nowrap",
               }}
             >
               {isPasswordVisible ? "🙈 Hide" : "👁️ Show"}
@@ -285,6 +292,7 @@ export default function PasswordDetailsModal({
                 fontWeight: "600",
                 cursor: "pointer",
                 transition: "all 0.2s",
+                whiteSpace: "nowrap",
               }}
             >
               {copyFeedback === "password" ? "✓ Copied!" : "📋 Copy"}
@@ -336,7 +344,13 @@ export default function PasswordDetailsModal({
               📅 Created:
             </span>
             <span
-              style={{ color: "white", fontSize: "14px", marginLeft: "8px" }}
+              style={{
+                color: "white",
+                fontSize: window.innerWidth <= 480 ? "13px" : "14px",
+                marginLeft: "8px",
+                display: window.innerWidth <= 480 ? "block" : "inline",
+                marginTop: window.innerWidth <= 480 ? "4px" : "0",
+              }}
             >
               {formatDate(password.created_at)}
             </span>
@@ -350,8 +364,10 @@ export default function PasswordDetailsModal({
                 <span
                   style={{
                     color: "white",
-                    fontSize: "14px",
+                    fontSize: window.innerWidth <= 480 ? "13px" : "14px",
                     marginLeft: "8px",
+                    display: window.innerWidth <= 480 ? "block" : "inline",
+                    marginTop: window.innerWidth <= 480 ? "4px" : "0",
                   }}
                 >
                   {formatDate(password.updated_at)}
@@ -360,7 +376,13 @@ export default function PasswordDetailsModal({
             )}
         </div>
 
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            flexWrap: window.innerWidth <= 480 ? "wrap" : "nowrap",
+          }}
+        >
           <button
             onClick={onEdit}
             aria-label="Edit this password"
@@ -375,6 +397,7 @@ export default function PasswordDetailsModal({
               fontWeight: "600",
               cursor: "pointer",
               transition: "background-color 0.2s",
+              minWidth: window.innerWidth <= 480 ? "100%" : "auto",
             }}
             onMouseOver={(e) => (e.target.style.backgroundColor = "#2563EB")}
             onMouseOut={(e) => (e.target.style.backgroundColor = "#3B82F6")}
@@ -395,6 +418,7 @@ export default function PasswordDetailsModal({
               fontWeight: "600",
               cursor: "pointer",
               transition: "background-color 0.2s",
+              minWidth: window.innerWidth <= 480 ? "100%" : "auto",
             }}
             onMouseOver={(e) => (e.target.style.backgroundColor = "#991B1B")}
             onMouseOut={(e) => (e.target.style.backgroundColor = "#7F1D1D")}

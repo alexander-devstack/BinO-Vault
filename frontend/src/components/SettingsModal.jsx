@@ -9,7 +9,6 @@ export default function SettingsModal({ onClose }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Just set false initially - will check after generation
     setHasRecoveryKey(false);
   }, []);
 
@@ -45,6 +44,7 @@ export default function SettingsModal({ onClose }) {
           alignItems: "center",
           justifyContent: "center",
           zIndex: 999,
+          padding: "20px",
           animation: "fadeIn 0.2s ease-out",
         }}
       >
@@ -52,10 +52,10 @@ export default function SettingsModal({ onClose }) {
           onClick={(e) => e.stopPropagation()}
           style={{
             backgroundColor: "#2A2A2A",
-            padding: "2rem",
+            padding: window.innerWidth <= 480 ? "24px" : "32px",
             borderRadius: "12px",
-            maxWidth: "500px",
-            width: "90%",
+            width: window.innerWidth <= 768 ? "95vw" : "500px",
+            maxWidth: window.innerWidth <= 768 ? "95vw" : "500px",
             animation: "slideUp 0.3s ease-out",
           }}
         >
@@ -63,10 +63,17 @@ export default function SettingsModal({ onClose }) {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginBottom: "1.5rem",
+              alignItems: "center",
+              marginBottom: "24px",
             }}
           >
-            <h2 style={{ color: "#FFFFFF", fontSize: "1.5rem", margin: 0 }}>
+            <h2
+              style={{
+                color: "#FFFFFF",
+                fontSize: window.innerWidth <= 480 ? "20px" : "24px",
+                margin: 0,
+              }}
+            >
               ⚙️ Settings
             </h2>
             <button
@@ -75,7 +82,7 @@ export default function SettingsModal({ onClose }) {
                 background: "none",
                 border: "none",
                 color: "#D1D5DB",
-                fontSize: "1.5rem",
+                fontSize: "24px",
                 cursor: "pointer",
                 padding: 0,
               }}
@@ -87,16 +94,16 @@ export default function SettingsModal({ onClose }) {
           <div
             style={{
               backgroundColor: "#1A1A1A",
-              padding: "1.5rem",
+              padding: window.innerWidth <= 480 ? "16px" : "24px",
               borderRadius: "8px",
-              marginBottom: "1rem",
+              marginBottom: "16px",
             }}
           >
             <h3
               style={{
                 color: "#FFFFFF",
-                fontSize: "1.1rem",
-                marginBottom: "0.75rem",
+                fontSize: window.innerWidth <= 480 ? "16px" : "18px",
+                marginBottom: "12px",
               }}
             >
               🔑 Account Recovery
@@ -104,8 +111,8 @@ export default function SettingsModal({ onClose }) {
             <p
               style={{
                 color: "#9CA3AF",
-                fontSize: "0.9rem",
-                marginBottom: "1rem",
+                fontSize: "14px",
+                marginBottom: "16px",
               }}
             >
               Recovery Key: {hasRecoveryKey ? "✅ Generated" : "❌ Not Set"}
@@ -116,21 +123,21 @@ export default function SettingsModal({ onClose }) {
                 disabled={loading}
                 style={{
                   width: "100%",
-                  padding: "0.75rem",
+                  padding: "12px",
                   backgroundColor: "#00FFA3",
                   color: "#1A1A1A",
                   border: "none",
                   borderRadius: "8px",
                   fontWeight: "bold",
                   cursor: loading ? "wait" : "pointer",
-                  fontSize: "1rem",
+                  fontSize: "16px",
                 }}
               >
                 {loading ? "Generating..." : "Generate Recovery Key"}
               </button>
             )}
             {hasRecoveryKey && (
-              <p style={{ color: "#00FFA3", fontSize: "0.85rem", margin: 0 }}>
+              <p style={{ color: "#00FFA3", fontSize: "13px", margin: 0 }}>
                 ✓ Your account can be recovered if you forget your master
                 password
               </p>
@@ -141,14 +148,14 @@ export default function SettingsModal({ onClose }) {
             onClick={onClose}
             style={{
               width: "100%",
-              padding: "0.75rem",
+              padding: "12px",
               backgroundColor: "#374151",
               color: "#FFFFFF",
               border: "none",
               borderRadius: "8px",
               fontWeight: "bold",
               cursor: "pointer",
-              fontSize: "1rem",
+              fontSize: "16px",
             }}
           >
             Close
