@@ -9,6 +9,8 @@ import PasswordDetailsModal from "./PasswordDetailsModal";
 import Toast from "./Toast";
 import Spinner from "./Spinner";
 import SettingsModal from "./SettingsModal";
+import Avatar from "./Avatar";
+import StrengthBar from "./StrengthBar";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -91,21 +93,17 @@ export default function Dashboard() {
       await navigator.clipboard.writeText(text);
       showToast(`${type} copied to clipboard! 🔒 Will clear in 30s`, "success");
 
-      // Auto-clear clipboard after 30 seconds
       setTimeout(async () => {
         try {
           const currentClipboard = await navigator.clipboard.readText();
-          // Only clear if clipboard still contains the same text
           if (currentClipboard === text) {
             await navigator.clipboard.writeText("");
             showToast("Clipboard cleared for security 🔒", "success");
           }
         } catch (err) {
-          console.log(
-            "Clipboard auto-clear skipped (permission denied or already changed)",
-          );
+          console.log("Clipboard auto-clear skipped");
         }
-      }, 30000); // 30 seconds
+      }, 30000);
     } catch (err) {
       console.error("Failed to copy:", err);
       showToast("Failed to copy to clipboard", "error");
@@ -574,9 +572,6 @@ export default function Dashboard() {
                       borderRadius: "12px",
                       padding: "20px",
                       borderLeft: `4px solid ${getSecurityColor(pwd.security_level)}`,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
                       cursor: "pointer",
                       transition: "background-color 0.2s",
                     }}
@@ -587,132 +582,130 @@ export default function Dashboard() {
                       (e.currentTarget.style.backgroundColor = "#2A2A2A")
                     }
                   >
-                    <div style={{ flex: 1 }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "12px",
-                          marginBottom: "8px",
-                        }}
-                      >
+                    {/* Avatar + Header */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "16px",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <Avatar website={pwd.website} size="medium" />
+
+                      <div style={{ flex: 1 }}>
                         <h3
                           style={{
                             fontSize: "20px",
                             fontWeight: "600",
                             color: "white",
-                            margin: 0,
+                            margin: "0 0 4px 0",
                           }}
                         >
                           {pwd.website}
                         </h3>
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            padding: "4px 8px",
-                            backgroundColor:
-                              getSecurityColor(pwd.security_level) + "20",
-                            color: getSecurityColor(pwd.security_level),
-                            borderRadius: "4px",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {pwd.security_level}
-                        </span>
-                      </div>
-                      <p
-                        style={{
-                          color: "#9CA3AF",
-                          fontSize: "14px",
-                          margin: "0 0 8px 0",
-                        }}
-                      >
-                        {pwd.username}
-                      </p>
-                      {pwd.notes && pwd.notes.trim() !== "" && (
                         <p
                           style={{
-                            color: "#6B7280",
-                            fontSize: "13px",
-                            margin: "0 0 12px 0",
-                            fontStyle: "italic",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
+                            color: "#9CA3AF",
+                            fontSize: "14px",
+                            margin: 0,
                           }}
                         >
-                          <span>📝</span>
-                          <span>{pwd.notes}</span>
+                          {pwd.username}
                         </p>
-                      )}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "12px",
-                        }}
-                      >
-                        <code
-                          style={{
-                            fontSize: "16px",
-                            color: "#D1D5DB",
-                            fontFamily: "monospace",
-                          }}
-                        >
-                          {visiblePasswords.has(pwd.id)
-                            ? pwd.password
-                            : "••••••••••••"}
-                        </code>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            togglePasswordVisibility(pwd.id);
-                          }}
-                          style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#374151",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "6px",
-                            fontSize: "14px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          {visiblePasswords.has(pwd.id) ? "🙈 Hide" : "👁️ Show"}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            copyToClipboard(pwd.password, "Password");
-                          }}
-                          style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#00FFA3",
-                            color: "#1A1A1A",
-                            border: "none",
-                            borderRadius: "6px",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                            cursor: "pointer",
-                          }}
-                        >
-                          📋 Copy
-                        </button>
                       </div>
                     </div>
+
+                    {/* Password Strength Bar */}
+                    <div style={{ marginBottom: "12px" }}>
+                      <StrengthBar level={pwd.security_level} />
+                    </div>
+
+                    {/* Notes */}
+                    {pwd.notes && pwd.notes.trim() !== "" && (
+                      <p
+                        style={{
+                          color: "#6B7280",
+                          fontSize: "13px",
+                          margin: "0 0 12px 0",
+                          fontStyle: "italic",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <span>📝</span>
+                        <span>{pwd.notes}</span>
+                      </p>
+                    )}
+
+                    {/* Password Field */}
                     <div
                       style={{
                         display: "flex",
+                        alignItems: "center",
                         gap: "12px",
-                        marginLeft: "16px",
+                        marginBottom: "16px",
                       }}
                     >
+                      <code
+                        style={{
+                          fontSize: "16px",
+                          color: "#D1D5DB",
+                          fontFamily: "monospace",
+                          flex: 1,
+                        }}
+                      >
+                        {visiblePasswords.has(pwd.id)
+                          ? pwd.password
+                          : "••••••••••••"}
+                      </code>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePasswordVisibility(pwd.id);
+                        }}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#374151",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          fontSize: "14px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {visiblePasswords.has(pwd.id) ? "🙈 Hide" : "👁️ Show"}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(pwd.password, "Password");
+                        }}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#00FFA3",
+                          color: "#1A1A1A",
+                          border: "none",
+                          borderRadius: "6px",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                        }}
+                      >
+                        📋 Copy
+                      </button>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div style={{ display: "flex", gap: "12px" }}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setEditingPassword(pwd);
                         }}
                         style={{
+                          flex: 1,
                           padding: "8px 16px",
                           backgroundColor: "#3B82F6",
                           color: "white",
@@ -737,6 +730,7 @@ export default function Dashboard() {
                           deletePassword(pwd.id);
                         }}
                         style={{
+                          flex: 1,
                           padding: "8px 16px",
                           backgroundColor: "#7F1D1D",
                           color: "#FEE2E2",
