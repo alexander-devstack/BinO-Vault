@@ -4,19 +4,17 @@ from argon2.exceptions import VerifyMismatchError
 import secrets
 from datetime import datetime, timedelta
 from utils.rate_limiter import rate_limiter
-from database_postgres import SessionLocal, User, Session as DBSession
+from database import DatabaseManager, User, Session as DBSession  # ✅ Added Session
 
+db_manager = DatabaseManager()
 auth_bp = Blueprint('auth', __name__)
 ph = PasswordHasher()
 
+
 def get_db():
     """Get database session"""
-    db = SessionLocal()
-    try:
-        return db
-    except Exception as e:
-        db.close()
-        raise e
+    return db_manager.get_session()
+
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from datetime import datetime
-from database_postgres import SessionLocal, PasswordEntry
+from database import User, PasswordEntry, Session  # ✅ SQLite
 from crypto.encryption import PasswordEncryption
 from utils.password_generator import PasswordGenerator
 

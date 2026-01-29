@@ -9,22 +9,29 @@ Base = declarative_base()
 
 class User(Base):
     """
-    User table - stores master password and recovery key hashes.
-
+    User table - stores master password hash.
+    
     SECURITY DESIGN:
     - Only ONE user per vault (local-only app)
     - Master password: Argon2id hash (never stored in plaintext)
-    - Recovery key: Argon2id hash (for password reset)
-    - Created_at: Timestamp for security auditing
     """
     __tablename__ = 'users'
-
-    id = Column(Integer, primary_key=True)
-    username = Column(String(100), unique=True, nullable=False)  # Can be email or custom name
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
     master_password_hash = Column(String(255), nullable=False)  # Argon2id hash
-    recovery_key_hash = Column(String(255), nullable=False)  # Argon2id hash
     created_at = Column(DateTime, default=datetime.utcnow)
-    last_login = Column(DateTime, nullable=True)
+    # ✅ Removed: username, recovery_key_hash, last_login (not needed for single-user vault)
+
+
+class Session(Base):
+    """User session tracking"""
+    __tablename__ = 'sessions'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, nullable=False)
+    session_token = Column(String(255), unique=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=False)
 
 
 class PasswordEntry(Base):

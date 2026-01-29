@@ -4,20 +4,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 
-# Get DATABASE_URL from environment (Render provides this automatically)
-DATABASE_URL = os.environ.get('DATABASE_URL')
+# SQLite only - local development
+DATABASE_URL = 'sqlite:///passwords.db'
 
-# Fix for Render's postgres:// URL (needs to be postgresql://)
-if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
-    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
-
-# Fallback to SQLite for local development
-if not DATABASE_URL:
-    DATABASE_URL = 'sqlite:///passwords.db'
-
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -30,6 +23,7 @@ class User(Base):
     sessions = relationship('Session', back_populates='user', cascade='all, delete-orphan')
     password_entries = relationship('PasswordEntry', back_populates='user', cascade='all, delete-orphan')
 
+
 class Session(Base):
     __tablename__ = 'sessions'
     
@@ -40,6 +34,7 @@ class Session(Base):
     expires_at = Column(DateTime, nullable=False)
     
     user = relationship('User', back_populates='sessions')
+
 
 class PasswordEntry(Base):
     __tablename__ = 'password_entries'
@@ -56,9 +51,11 @@ class PasswordEntry(Base):
     
     user = relationship('User', back_populates='password_entries')
 
+
 def init_db():
     """Initialize database tables"""
     Base.metadata.create_all(bind=engine)
+
 
 def get_db():
     """Get database session"""

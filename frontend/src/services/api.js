@@ -1,8 +1,7 @@
 import axios from "axios";
 
 // Base URL for your Flask backend
-const API_BASE_URL = "https://binovault-api.onrender.com";
-
+const API_BASE_URL = "http://localhost:5000";
 // Create axios instance with default config
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -14,17 +13,17 @@ const apiClient = axios.create({
 
 // ==================== AUTH API ====================
 export const authAPI = {
-  // Register new user
+  // Register new user - FIXED PATH
   register: async (masterPassword) => {
-    const response = await apiClient.post("/auth/register", {
+    const response = await apiClient.post("/api/auth/register", {
       master_password: masterPassword,
     });
     return response.data;
   },
 
-  // Login
+  // Login - FIXED PATH
   login: async (masterPassword) => {
-    const response = await apiClient.post("/auth/login", {
+    const response = await apiClient.post("/api/auth/login", {
       master_password: masterPassword,
     });
     return response.data;
@@ -50,6 +49,7 @@ export const passwordAPI = {
     const response = await apiClient.delete(`/api/passwords/${id}`);
     return response.data;
   },
+
   // Update existing password
   update: async (id, passwordData) => {
     const response = await apiClient.put(`/api/passwords/${id}`, passwordData);
