@@ -21,8 +21,10 @@ def check_session_expiry():
     return True, None
 
 def get_db():
-    """Get database session"""
-    return SessionLocal()
+    """Get database session from DatabaseManager"""
+    from database import DatabaseManager
+    db_manager = DatabaseManager()
+    return db_manager.get_session()
 
 def require_auth(f):
     """Decorator to require authentication for routes."""
@@ -38,8 +40,12 @@ def require_auth(f):
 @password_bp.route('/', methods=['GET'])
 @require_auth
 def get_all_passwords():
-    """Get all passwords for logged-in user."""
     try:
+        print("=== DEBUG SESSION ===")
+        print("user_id:", session.get('user_id'))
+        print("master_password:", bool(session.get('master_password')))
+        print("=====================")
+        
         user_id = session['user_id']
         master_password = session['master_password']
 
