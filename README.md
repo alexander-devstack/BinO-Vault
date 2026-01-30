@@ -4,11 +4,11 @@ A neuroscience-inspired, local-first password manager built with security and co
 
 ## Overview
 
-BinO-Vault is a secure password management application that combines military-grade AES-256-GCM encryption with cognitive psychology principles to create an intuitive, anxiety-reducing user experience. Unlike traditional password managers that rely on cloud storage, BinO-Vault stores all data locally, giving you complete control and ownership of your sensitive information.
+BinO-Vault is a secure password management application that combines military-grade AES-256-GCM encryption with cognitive psychology principles to create an intuitive, anxiety-reducing user experience. Unlike traditional password managers that rely on cloud storage, BinO-Vault stores all data locally, giving users complete control and ownership of their sensitive information.
 
 ## Core Philosophy
 
-Traditional password managers often induce anxiety with labels like "WEAK" or "STRONG". BinO-Vault takes a different approach by using psychology-informed security level indicators:
+Traditional password managers often induce anxiety with binary labels like "WEAK" or "STRONG". BinO-Vault takes a different approach by implementing psychology-informed security level indicators:
 
 - **Calm (Green)**: Strong passwords that trigger positive reinforcement
 - **Alert (Orange)**: Moderate passwords that suggest improvement without inducing panic
@@ -31,7 +31,7 @@ This neuroscience-based approach leverages motivational psychology rather than s
 - **Complete CRUD operations**: Create, read, update, and delete password entries
 - **Advanced password generator**: Customizable length (8-32 characters) with character type selection
 - **Real-time strength analysis**: Instant feedback on password security
-- **Encrypted storage**: All passwords encrypted with your master password before storage
+- **Encrypted storage**: All passwords encrypted with master password before storage
 - **Notes support**: Add contextual information to password entries
 
 ### User Experience
@@ -80,48 +80,48 @@ This neuroscience-based approach leverages motivational psychology rather than s
 
 ## Project Structure
 
+```
 BinO-Vault/
 ├── backend/
-│ ├── api/
-│ │ ├── auth_routes.py # Authentication endpoints
-│ │ └── password_routes.py # Password CRUD endpoints
-│ ├── auth/
-│ │ └── password_hasher.py # Argon2id implementation
-│ ├── crypto/
-│ │ └── encryption.py # AES-256-GCM encryption
-│ ├── utils/
-│ │ └── password_generator.py # Secure password generation
-│ ├── app.py # Flask application entry point
-│ ├── config.py # Configuration management
-│ ├── database.py # SQLAlchemy models
-│ └── passwords.db # SQLite database
+│   ├── api/
+│   │   ├── auth_routes.py          # Authentication endpoints
+│   │   └── password_routes.py      # Password CRUD endpoints
+│   ├── auth/
+│   │   └── password_hasher.py      # Argon2id implementation
+│   ├── crypto/
+│   │   └── encryption.py           # AES-256-GCM encryption
+│   ├── utils/
+│   │   └── password_generator.py   # Secure password generation
+│   ├── app.py                      # Flask application entry point
+│   ├── config.py                   # Configuration management
+│   ├── database.py                 # SQLAlchemy models
+│   └── passwords.db                # SQLite database
 │
 ├── frontend/
-│ ├── src/
-│ │ ├── components/
-│ │ │ ├── AddPasswordModal.jsx
-│ │ │ ├── Dashboard.jsx
-│ │ │ ├── EditPasswordModal.jsx
-│ │ │ ├── Login.jsx
-│ │ │ ├── PasswordDetailsModal.jsx
-│ │ │ ├── PasswordGenerator.jsx
-│ │ │ ├── ProtectedRoute.jsx
-│ │ │ └── Toast.jsx
-│ │ ├── context/
-│ │ │ └── AuthContext.jsx # Global authentication state
-│ │ ├── services/
-│ │ │ └── api.js # Axios API client
-│ │ ├── App.jsx # Application routing
-│ │ ├── main.jsx # React entry point
-│ │ └── index.css # Global styles
-│ ├── package.json
-│ └── vite.config.js
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AddPasswordModal.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── EditPasswordModal.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── PasswordDetailsModal.jsx
+│   │   │   ├── PasswordGenerator.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   └── Toast.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx     # Global authentication state
+│   │   ├── services/
+│   │   │   └── api.js              # Axios API client
+│   │   ├── App.jsx                 # Application routing
+│   │   ├── main.jsx                # React entry point
+│   │   └── index.css               # Global styles
+│   ├── package.json
+│   └── vite.config.js
 │
-├── designs/ # Figma design exports
+├── designs/                        # Figma design exports
 ├── LICENSE
 └── README.md
-
-text
+```
 
 ## Installation
 
@@ -137,238 +137,236 @@ text
 
 ```bash
 cd backend
-Create and activate a virtual environment:
+```
 
-bash
+2. Create and activate a virtual environment:
+
+```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-Install dependencies:
+```
 
-bash
+3. Install dependencies:
+
+```bash
 pip install -r requirements.txt
-Initialize the database:
+```
 
-bash
+4. Initialize the database:
+
+```bash
 python init_database.py
-Start the Flask server:
+```
 
-bash
+5. Start the Flask server:
+
+```bash
 python app.py
-The backend will run on http://localhost:5000
+```
 
-Frontend Setup
-Navigate to the frontend directory:
+The backend will run on `http://localhost:5000`
 
-bash
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+
+```bash
 cd frontend
-Install dependencies:
+```
 
-bash
+2. Install dependencies:
+
+```bash
 npm install
-Start the development server:
+```
 
-bash
+3. Start the development server:
+
+```bash
 npm run dev
-The frontend will run on http://localhost:5173
+```
 
-Usage
-Open your browser and navigate to http://localhost:5173
+The frontend will run on `http://localhost:5173`
 
-Enter your master password (first-time users will create a new account)
+## Usage
 
-Add your first password using the "Add Password" button
+1. Open your browser and navigate to `http://localhost:5173`
+2. Enter your master password (first-time users will create a new account)
+3. Add your first password using the "Add Password" button
+4. Use the search bar, filters, and sort options to organize your passwords
+5. Click any password card to view full details
+6. Use the password generator to create strong, random passwords
 
-Use the search bar, filters, and sort options to organize your passwords
+### Keyboard Shortcuts
 
-Click any password card to view full details
+- **Ctrl+K** (Cmd+K on Mac): Focus the search bar
+- **ESC**: Close any open modal
+- **Enter**: Submit forms in modals
 
-Use the password generator to create strong, random passwords
+## Security Considerations
 
-Keyboard Shortcuts
-Ctrl+K (Cmd+K on Mac): Focus the search bar
+### Master Password
 
-ESC: Close any open modal
-
-Enter: Submit forms in modals
-
-Security Considerations
-Master Password
 Your master password is the key to all your encrypted data. BinO-Vault:
 
-Never stores your master password in plain text
+- Never stores your master password in plain text
+- Only stores an Argon2id hash for authentication
+- Uses your master password for encryption/decryption operations
+- Keeps your master password in memory only during your session
 
-Only stores an Argon2id hash for authentication
+### Data Storage
 
-Uses your master password for encryption/decryption operations
+- All passwords are encrypted before being written to the database
+- The encryption key is derived from your master password using PBKDF2
+- Each password entry is encrypted individually with a unique salt and IV
+- The database file (`passwords.db`) is stored locally on your machine
 
-Keeps your master password in memory only during your session
+### Best Practices
 
-Data Storage
-All passwords are encrypted before being written to the database
+- Choose a strong, unique master password
+- Never share your master password
+- Keep your `passwords.db` file secure and backed up
+- Run BinO-Vault on a trusted, malware-free system
+- Close the application when not in use
 
-The encryption key is derived from your master password using PBKDF2
+## Development
 
-Each password entry is encrypted individually with a unique salt and IV
+### Testing
 
-The database file (passwords.db) is stored locally on your machine
-
-Best Practices
-Choose a strong, unique master password
-
-Never share your master password
-
-Keep your passwords.db file secure and backed up
-
-Run BinO-Vault on a trusted, malware-free system
-
-Close the application when not in use
-
-Development
-Testing
 Run encryption tests:
 
-bash
+```bash
 cd backend
 python test_encryption.py
+```
+
 Run integration tests:
 
-bash
+```bash
 python test_full_flow.py
+```
+
 Verify database schema:
 
-bash
+```bash
 python check_schema.py
-Building for Production
+```
+
+### Building for Production
+
 Build the frontend:
 
-bash
+```bash
 cd frontend
 npm run build
-The production build will be created in the frontend/dist directory.
+```
 
-Design System
-Color Palette
-Primary: #00FFA3 (Mint Green) - Calm, safety, positive reinforcement
+The production build will be created in the `frontend/dist` directory.
 
-Background: #1A1A1A (Dark Gray) - Eye strain reduction
+## Design System
 
-Card Background: #2A2A2A - Visual hierarchy
+### Color Palette
 
-Text: #FFFFFF - Maximum contrast
+- **Primary**: #00FFA3 (Mint Green) - Calm, safety, positive reinforcement
+- **Background**: #1A1A1A (Dark Gray) - Eye strain reduction
+- **Card Background**: #2A2A2A - Visual hierarchy
+- **Text**: #FFFFFF - Maximum contrast
+- **Security Levels**:
+  - Calm: #00FFA3 (Green)
+  - Alert: #F59E0B (Orange)
+  - Critical: #EF4444 (Red)
 
-Security Levels:
+### Typography
 
-Calm: #00FFA3 (Green)
+- **Font Family**: System UI (Arial, Helvetica fallback)
+- **Headings**: 36px bold
+- **Subheadings**: 24px semibold
+- **Body Text**: 16px regular
+- **Monospace**: For password display
 
-Alert: #F59E0B (Orange)
+### Accessibility
 
-Critical: #EF4444 (Red)
+- WCAG AAA compliant contrast ratios
+- Minimum 48px height for interactive elements
+- Always-visible action buttons (no hover-only UI)
+- Keyboard navigation support
+- Screen reader friendly
 
-Typography
-Font Family: System UI (Arial, Helvetica fallback)
+## Neuroscience-Inspired Features
 
-Headings: 36px bold
+### Stress Reduction
 
-Subheadings: 24px semibold
+- Dark mode by default reduces eye strain and cortisol levels
+- Calm color palette triggers parasympathetic nervous system
+- Generous spacing prevents visual overwhelm
 
-Body Text: 16px regular
+### Cognitive Load Minimization
 
-Monospace: For password display
+- Single master password (no complex setup)
+- One-screen dashboard (everything visible at once)
+- Progressive disclosure (details on demand)
+- Clear visual hierarchy
 
-Accessibility
-WCAG AAA compliant contrast ratios
+### Pattern Recognition
 
-Minimum 48px height for interactive elements
+- Color-coded security levels for instant comprehension
+- Consistent iconography throughout the interface
+- Left-border indicators for peripheral vision activation
 
-Always-visible action buttons (no hover-only UI)
+### Dopamine-Driven Feedback
 
-Keyboard navigation support
+- Immediate toast notifications for all actions
+- Visual rewards for strong passwords
+- Copy confirmations provide instant gratification
 
-Screen reader friendly
+## Future Development Roadmap
 
-Neuroscience-Inspired Features
-Stress Reduction
-Dark mode by default reduces eye strain and cortisol levels
+### Planned Enhancements
 
-Calm color palette triggers parasympathetic nervous system
+- Session expiry after 24 hours of inactivity
+- CSRF protection for all state-changing operations
+- Rate limiting on authentication attempts
+- Recovery key generation and verification
+- Automatic clipboard clearing after 30 seconds
+- Error boundary implementation
+- Cross-browser compatibility testing
 
-Generous spacing prevents visual overwhelm
+## License
 
-Cognitive Load Minimization
-Single master password (no complex setup)
-
-One-screen dashboard (everything visible at once)
-
-Progressive disclosure (details on demand)
-
-Clear visual hierarchy
-
-Pattern Recognition
-Color-coded security levels for instant comprehension
-
-Consistent iconography throughout the interface
-
-Left-border indicators for peripheral vision activation
-
-Dopamine-Driven Feedback
-Immediate toast notifications for all actions
-
-Visual rewards for strong passwords
-
-Copy confirmations provide instant gratification
-
-Future Development Roadmap
-Week 3 Features (In Development)
-Session expiry after 24 hours of inactivity
-
-CSRF protection for all state-changing operations
-
-Rate limiting on authentication attempts
-
-Recovery key generation and verification
-
-Automatic clipboard clearing after 30 seconds
-
-Error boundary implementation
-
-Cross-browser compatibility testing
-
-License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-Contributing
-This is currently a personal project by Alexander, a first-year Electrical and Electronics Engineering student. Contributions, issues, and feature requests are welcome.
+## Contributing
 
-Acknowledgments
-Inspired by neuroscience research on stress reduction and cognitive load
+Contributions, issues, and feature requests are welcome. Feel free to check the issues page or submit a pull request.
 
-Built with security best practices from OWASP guidelines
+## Acknowledgments
 
-UI/UX design principles based on cognitive psychology research
+- Inspired by neuroscience research on stress reduction and cognitive load
+- Built with security best practices from OWASP guidelines
+- UI/UX design principles based on cognitive psychology research
 
-Contact
-GitHub: alexander-devstack
+## Version History
 
-Version History
-v0.75 (Current) - Days 1-12 Complete
+### v1.0 (Current Release)
 
-Search, filter, and sort functionality
+- Complete CRUD operations for password management
+- Search, filter, and sort functionality
+- Password details view with metadata
+- Advanced password generator
+- Neuroscience-inspired UX with psychology-informed security indicators
+- AES-256-GCM encryption with Argon2id password hashing
+- Session-based authentication
+- Real-time password strength analysis
+- Toast notifications and keyboard shortcuts
 
-Password details view with metadata
+## Author
 
-Complete CRUD operations
+**Alexander**  
+First-year Electrical and Electronics Engineering Student  
+Sri Ramakrishna Engineering College
 
-Advanced password generator
+GitHub: @alexander-devstack
 
-Neuroscience-inspired UX
+---
 
-v1.0 (Planned) - Day 16 Release
-
-Security hardening complete
-
-Full testing coverage
-
-Production-ready build
-
-Deployment documentation
-```
+Built with security, cognitive psychology, and user experience at the forefront.
